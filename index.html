@@ -1,0 +1,1086 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>인생안심 길잡이</title>
+<meta name="description" content="사후 행정·상속 타임라인과 웰다잉 엔딩노트를 정리하는 개인용 가이드">
+<meta name="theme-color" content="#7a3b5e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="인생안심">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* layout: single scrolling column, card-based screens switched by JS state (home / 5 modules / summary) */
+  :root{
+    --bg:#f3eef1;
+    --surface:#ffffff;
+    --surface-soft:#f8f3f6;
+    --ink:#2a2230;
+    --ink-soft:#6c5f6c;
+    --ink-faint:#a295a0;
+    --border:#e5d9e1;
+    --accent:#7a3b5e;
+    --accent-ink:#ffffff;
+    --accent-tint:#f3e3ea;
+    --warn-bg:#fff3e3;
+    --warn-border:#e0ab63;
+    --warn-ink:#6b4a1c;
+    --good-bg:#e9f1ea;
+    --good-border:#8fb89a;
+    --good-ink:#2f5436;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1a1520;
+      --surface:#241e2a;
+      --surface-soft:#2b2432;
+      --ink:#efe8ee;
+      --ink-soft:#b7a9b6;
+      --ink-faint:#847a84;
+      --border:#3a2f3a;
+      --accent:#c084a6;
+      --accent-ink:#201018;
+      --accent-tint:#3a2a33;
+      --warn-bg:#3a2e1c;
+      --warn-border:#8a6a34;
+      --warn-ink:#f1d6a4;
+      --good-bg:#223326;
+      --good-border:#4f7a5c;
+      --good-ink:#bfe0c6;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1a1520; --surface:#241e2a; --surface-soft:#2b2432;
+    --ink:#efe8ee; --ink-soft:#b7a9b6; --ink-faint:#847a84;
+    --border:#3a2f3a; --accent:#c084a6; --accent-ink:#201018; --accent-tint:#3a2a33;
+    --warn-bg:#3a2e1c; --warn-border:#8a6a34; --warn-ink:#f1d6a4;
+    --good-bg:#223326; --good-border:#4f7a5c; --good-ink:#bfe0c6;
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:'Noto Sans KR', -apple-system, sans-serif;
+    display:flex; justify-content:center;
+    padding-block:0 48px;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+  }
+  h1,h2,h3{text-wrap:balance; margin:0; font-family:'Noto Serif KR', serif;}
+  .num{font-variant-numeric: tabular-nums;}
+  [hidden]{display:none!important;}
+
+  .app{width:100%; max-width:560px;}
+
+  /* ---- top bar ---- */
+  .topbar{
+    position:sticky; top:0; z-index:10;
+    display:flex; align-items:center; gap:10px;
+    padding: 14px 2px 12px;
+    background:var(--bg);
+  }
+  .topbar::before{
+    content:''; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px);
+    background:var(--bg); z-index:10;
+  }
+  .iconbtn{
+    width:38px; height:38px; border-radius:12px; border:1.5px solid var(--border); background:var(--surface);
+    display:flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer; color:var(--ink); flex:none;
+  }
+  .iconbtn:focus-visible{outline:3px solid var(--accent); outline-offset:2px;}
+  .topbar .title{font-size:16px; font-weight:700;}
+  .topbar .chip{
+    margin-left:auto; font-size:11.5px; font-weight:700; color:var(--accent);
+    background:var(--accent-tint); padding:4px 10px; border-radius:999px;
+  }
+
+  /* ---- screens ---- */
+  .screen{display:none;}
+  .screen.active{display:block; animation:rise .35s ease both;}
+  @media (prefers-reduced-motion: reduce){ .screen.active{animation:none;} }
+  @keyframes rise{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+
+  /* ---- home ---- */
+  .hero{padding: 10px 2px 20px;}
+  .hero .brand{font-size:28px; font-weight:700;}
+  .hero .tag{margin-top:8px; font-size:14.5px; color:var(--ink-soft); line-height:1.6;}
+
+  .modcard{
+    display:flex; align-items:center; gap:14px;
+    background:var(--surface); border:1.5px solid var(--border); border-radius:18px;
+    padding:16px; margin-bottom:10px; cursor:pointer; text-align:left; font-family:inherit; width:100%;
+  }
+  .modcard:focus-visible{outline:3px solid var(--accent); outline-offset:2px;}
+  .modcard .n{
+    width:42px; height:42px; border-radius:13px; flex:none;
+    background:var(--accent-tint); color:var(--accent); font-family:'Noto Serif KR', serif; font-weight:700; font-size:18px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modcard .body{min-width:0; flex:1;}
+  .modcard .t{font-size:15.5px; font-weight:700;}
+  .modcard .d{font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.5;}
+  .modcard .dot{width:9px; height:9px; border-radius:50%; background:var(--border); flex:none;}
+  .modcard .dot.done{background:var(--good-border);}
+  .modcard .star{font-size:11px; color:var(--accent); font-weight:700; margin-left:6px;}
+
+  .summarybar{
+    margin-top:18px; display:flex; align-items:center; justify-content:space-between;
+    background:var(--accent-tint); border-radius:16px; padding:14px 16px;
+  }
+  .summarybar .t{font-size:13.5px; font-weight:700; color:var(--accent);}
+  .summarybar .d{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .smallbtn{
+    background:var(--accent); color:var(--accent-ink); border:none; border-radius:12px;
+    padding:9px 14px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; flex:none;
+  }
+  .smallbtn:focus-visible{outline:3px solid var(--ink); outline-offset:2px;}
+
+  /* ---- module content shared ---- */
+  .section{margin-bottom:22px;}
+  .section .lead{font-size:14.5px; color:var(--ink-soft); line-height:1.65; margin-bottom:14px;}
+  .fieldlabel{font-size:13.5px; font-weight:700; margin-bottom:8px; display:block;}
+  textarea, input[type=text], input[type=date], select{
+    width:100%; font-family:inherit; font-size:14.5px; color:var(--ink);
+    background:var(--surface); border:1.5px solid var(--border); border-radius:12px;
+    padding:11px 13px;
+  }
+  textarea{min-height:64px; resize:vertical;}
+  textarea:focus, input:focus, select:focus{outline:3px solid var(--accent); outline-offset:1px; border-color:var(--accent);}
+
+  .choicerow{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;}
+  .choice{
+    border:1.5px solid var(--border); background:var(--surface); color:var(--ink);
+    border-radius:999px; padding:9px 15px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit;
+  }
+  .choice:focus-visible{outline:3px solid var(--accent); outline-offset:2px;}
+  .choice.sel{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+
+  .checklist{display:flex; flex-direction:column; gap:8px;}
+  .checkrow{
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px;
+  }
+  .checkrow input[type=checkbox]{width:19px; height:19px; accent-color:var(--accent); flex:none;}
+  .checkrow .ck-body{flex:1; min-width:0;}
+  .checkrow .ck-title{font-size:14px; font-weight:700;}
+  .checkrow input[type=text]{margin-top:6px; font-size:13px; padding:7px 10px;}
+
+  .box{border-radius:16px; padding:15px 16px; border:1.5px solid var(--border); background:var(--surface-soft); margin-top:12px;}
+  .box.warn{background:var(--warn-bg); border-color:var(--warn-border); color:var(--warn-ink);}
+  .box.good{background:var(--good-bg); border-color:var(--good-border); color:var(--good-ink);}
+  .box .box-t{font-size:12.5px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:6px;}
+  .box p{margin:0 0 6px; font-size:13.5px; line-height:1.6;}
+  .box p:last-child{margin-bottom:0;}
+
+  .primarybtn{
+    width:100%; background:var(--accent); color:var(--accent-ink); border:none; border-radius:14px;
+    padding:15px; font-size:15.5px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:8px;
+  }
+  .primarybtn:focus-visible{outline:3px solid var(--ink); outline-offset:2px;}
+  .ghostbtn{
+    width:100%; background:none; color:var(--accent); border:1.5px solid var(--accent); border-radius:14px;
+    padding:13px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:10px;
+  }
+
+  .letter{
+    background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:20px;
+    font-family:'Noto Serif KR', serif; font-size:14.5px; line-height:2; white-space:pre-wrap;
+  }
+
+  /* timeline */
+  .tlrow{display:flex; gap:12px; padding:13px 0; border-bottom:1px solid var(--border);}
+  .tlrow:last-child{border-bottom:none;}
+  .tlrow .d{
+    flex:none; width:64px; text-align:center; font-size:12px; font-weight:700; color:var(--accent);
+    background:var(--accent-tint); border-radius:10px; padding:7px 4px; line-height:1.4;
+  }
+  .tlrow .body{min-width:0;}
+  .tlrow .t{font-size:14.5px; font-weight:700;}
+  .tlrow .s{font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.5;}
+  .tlrow .due{font-size:12px; color:var(--ink-faint); margin-top:3px; font-weight:600;}
+
+  .bizcard{
+    background:var(--surface); border:1.5px dashed var(--border); border-radius:14px; padding:13px 14px; margin-top:8px;
+  }
+  .bizcard .t{font-size:14px; font-weight:700;}
+  .bizcard .s{font-size:12.5px; color:var(--ink-soft); margin-top:3px; line-height:1.5;}
+  .bizbanner{
+    background:var(--accent-tint); color:var(--accent); font-size:12px; font-weight:700;
+    border-radius:10px; padding:9px 12px; margin:14px 0 8px; line-height:1.5;
+  }
+
+  /* summary card */
+  .sumcard{
+    background:var(--surface); border:1.5px solid var(--border); border-radius:20px; padding:22px;
+  }
+  .sumcard h2{font-size:19px; margin-bottom:4px;}
+  .sumcard .sub{font-size:12.5px; color:var(--ink-faint); margin-bottom:16px;}
+  .sumsec{margin-bottom:16px;}
+  .sumsec .h{font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
+  .sumsec .v{font-size:14px; line-height:1.7; color:var(--ink);}
+  .sumsec .empty{color:var(--ink-faint); font-style:italic;}
+
+  /* ---- 수신 화면 미리보기 모달(시연용) ---- */
+  .phonemodal-overlay{
+    position:fixed; inset:0; background:rgba(20,15,20,.55); z-index:50;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .phonemodal{
+    width:100%; max-width:330px; background:var(--surface); border-radius:26px;
+    border:1.5px solid var(--border); overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.35);
+  }
+  .phonemodal-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 16px; background:var(--accent); color:var(--accent-ink);
+  }
+  .phonemodal-label{font-size:12px; font-weight:700;}
+  .phonemodal-close{
+    background:none; border:none; color:inherit; font-size:16px; cursor:pointer; padding:2px 6px; line-height:1;
+  }
+  .phonemodal-body{padding:18px 16px 20px;}
+  .phonemodal-chip{
+    display:inline-block; font-size:11px; font-weight:700; color:var(--accent);
+    background:var(--accent-tint); padding:4px 10px; border-radius:999px; margin-bottom:10px;
+  }
+  .phonemodal-msgbox{
+    background:var(--surface-soft); border:1.5px solid var(--border); border-radius:16px; padding:14px; margin-bottom:4px;
+  }
+  .phonemodal-from{font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
+  .phonemodal-text{font-size:14px; line-height:1.7; white-space:pre-wrap;}
+  body{margin:0;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <button class="iconbtn" id="btn-top-back" type="button" aria-label="홈으로" hidden>←</button>
+    <span class="title" id="topbar-title">인생안심 길잡이</span>
+    <span class="chip" id="topbar-chip" hidden></span>
+  </div>
+
+  <!-- 홈 -->
+  <section class="screen active" id="screen-home">
+    <div class="hero">
+      <div class="brand">인생안심 길잡이</div>
+      <div class="tag">내 뜻대로 정리하고, 남은 가족이 헤매지 않게.<br>5개 모듈로 나눠 천천히 채워보세요.</div>
+    </div>
+
+    <button class="modcard" type="button" data-go="m1">
+      <span class="n">①</span>
+      <span class="body">
+        <span class="t">마음 갈무리</span>
+        <span class="d">AI 자서전 &amp; 가족에게 남기는 편지</span>
+      </span>
+      <span class="dot" id="dot-m1"></span>
+    </button>
+
+    <button class="modcard" type="button" data-go="m2">
+      <span class="n">②</span>
+      <span class="body">
+        <span class="t">존엄한 결정</span>
+        <span class="d">사전연명의료 &amp; 돌봄 의향서</span>
+      </span>
+      <span class="dot" id="dot-m2"></span>
+    </button>
+
+    <button class="modcard" type="button" data-go="m3">
+      <span class="n">③</span>
+      <span class="body">
+        <span class="t">마지막 소풍</span>
+        <span class="d">내 뜻대로 디자인하는 장례 &amp; 안치</span>
+      </span>
+      <span class="dot" id="dot-m3"></span>
+    </button>
+
+    <button class="modcard" type="button" data-go="m4">
+      <span class="n">④</span>
+      <span class="body">
+        <span class="t">보물지도 &amp; 유언 가이드<span class="star">★핵심</span></span>
+        <span class="d">숨은 자산 체크 + 법정상속분·유언 요건 안내</span>
+      </span>
+      <span class="dot" id="dot-m4"></span>
+    </button>
+
+    <button class="modcard" type="button" data-go="m5">
+      <span class="n">⑤</span>
+      <span class="body">
+        <span class="t">사후 로드맵</span>
+        <span class="d">D-Day 행정 타임라인 + 전문가 연결(시연)</span>
+      </span>
+      <span class="dot" id="dot-m5"></span>
+    </button>
+
+    <div class="summarybar">
+      <div>
+        <div class="t">인생안심 정리표</div>
+        <div class="d" id="sum-progress">아직 채운 모듈이 없어요</div>
+      </div>
+      <button class="smallbtn" type="button" data-go="summary">카드 보기</button>
+    </div>
+
+    <div class="box" style="margin-top:14px;">
+      <div class="box-t">🔒 이 기기에만 안전하게 저장돼요</div>
+      <p>입력한 내용은 서버로 전송되지 않고, 지금 쓰고 있는 이 브라우저(기기)에만 저장돼요. 다른 기기나 브라우저에서 열면 보이지 않으니, 앱을 지우거나 데이터를 지우면 함께 사라질 수 있어요. 중요한 내용은 "요약 복사하기"로 따로 보관해두세요.</p>
+    </div>
+    <button class="ghostbtn" type="button" id="btn-reset-all" style="border-color:var(--warn-border); color:var(--warn-ink);">이 기기의 저장된 내용 전체 초기화</button>
+  </section>
+
+  <!-- 모듈 ① -->
+  <section class="screen" id="screen-m1">
+    <div class="section">
+      <p class="lead">가장 뿌듯했던 순간, 가족에게 전하고 싶은 마음을 짧게 적어주세요. 적으신 말을 다정한 편지 한 편으로 다듬어 드릴게요.</p>
+      <label class="fieldlabel" for="m1-proud">내 인생에서 가장 뿌듯했던 순간은?</label>
+      <textarea id="m1-proud" placeholder="예: 아이들 대학 보낸 것, 작은 가게를 20년 지켜온 것..."></textarea>
+    </div>
+    <div class="section">
+      <label class="fieldlabel" for="m1-thanks">자녀들에게 고마웠던 기억이나 꼭 하고 싶은 당부가 있다면?</label>
+      <textarea id="m1-thanks" placeholder="예: 힘들 때 곁에 있어줘서 고마웠다, 서로 다투지 말고 지내라..."></textarea>
+    </div>
+    <button class="primarybtn" type="button" id="btn-m1-make">편지로 다듬기</button>
+    <div id="m1-letter-wrap" hidden>
+      <div class="letter" id="m1-letter"></div>
+    </div>
+
+    <div class="section" style="margin-top:28px;">
+      <h3 style="font-size:15px; margin-bottom:10px;">⏳ 자녀에게, 먼 훗날 전할 편지</h3>
+      <p class="lead">투병 중이거나 미리 준비하고 싶을 때를 위한 기능이에요. 자녀가 특정 나이가 됐을 때 열어볼 편지를 지금 써두고, 가족이 잊지 않도록 캘린더 알림을 걸어둘 수 있어요.</p>
+      <label class="fieldlabel" for="m1c-name">자녀 이름</label>
+      <input type="text" id="m1c-name" placeholder="예: 민지">
+      <label class="fieldlabel" style="margin-top:12px;">몇 살이 될 때 전할까요?</label>
+      <div class="choicerow" id="m1c-age">
+        <button class="choice" data-val="20">20살</button>
+        <button class="choice" data-val="30">30살</button>
+        <button class="choice" data-val="40">40살</button>
+      </div>
+      <label class="fieldlabel" style="margin-top:12px;" for="m1c-year">그 나이가 되는 해는 언제인가요?</label>
+      <input type="text" id="m1c-year" placeholder="예: 2036 (서력 4자리)">
+      <label class="fieldlabel" style="margin-top:12px;" for="m1c-letter">전할 말을 적어주세요</label>
+      <textarea id="m1c-letter" placeholder="예: 네가 스무 살이 된 걸 축하해. 아빠는 그때..."></textarea>
+      <div id="m1c-warn" class="box warn" hidden><p id="m1c-warn-text"></p></div>
+      <button class="primarybtn" type="button" id="btn-m1c-make">타임캡슐 편지 만들기</button>
+      <div id="m1c-wrap" hidden>
+        <div class="letter" id="m1c-card"></div>
+        <a class="ghostbtn" id="m1c-cal" href="#" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; box-sizing:border-box;">📅 가족 캘린더에 전달일 알림 추가</a>
+        <button class="ghostbtn" type="button" id="btn-m1c-preview">📱 자녀가 받을 화면 미리보기 (시연)</button>
+        <div class="box warn" style="margin-top:10px;">
+          <div class="box-t">⚠️ 꼭 알아두세요</div>
+          <p>몇십 년 뒤로 편지를 자동 전송해주는 기능은 아니에요. 그렇게 하려면 서버에 오래 보관하고 문자를 자동으로 보내는 유료 인프라가 필요해요. 대신 "가족이 캘린더 알림을 보고, 보관해둔 편지를 그날 전달한다"는 현실적인 방식으로 설계했고, 위 미리보기는 그날 자녀 화면이 어떤 느낌일지 보여주는 시연용 화면이에요.</p>
+        </div>
+      </div>
+    </div>
+
+    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
+  </section>
+
+  <!-- 모듈 ② -->
+  <section class="screen" id="screen-m2">
+    <div class="section">
+      <p class="lead">의식을 잃거나 판단이 흐려졌을 때, 자녀들이 죄책감 없이 결정할 수 있도록 내 뜻을 미리 밝혀두는 항목이에요.</p>
+      <label class="fieldlabel">무의미한 연명치료(심폐소생술·인공호흡기·혈액투석)에 대한 내 생각은?</label>
+      <div class="choicerow" id="m2-cpr">
+        <button class="choice" data-val="거부">거부하고 싶다</button>
+        <button class="choice" data-val="희망">최대한 받고 싶다</button>
+        <button class="choice" data-val="고민중">아직 고민 중</button>
+      </div>
+    </div>
+    <div class="section">
+      <label class="fieldlabel">치매·중증 질환 시 희망하는 돌봄 형태는?</label>
+      <div class="choicerow" id="m2-care">
+        <button class="choice" data-val="재가요양">집에서 재가요양</button>
+        <button class="choice" data-val="요양원">전문 요양원</button>
+        <button class="choice" data-val="가족과상의">그때 가족과 상의</button>
+      </div>
+    </div>
+    <div class="section">
+      <label class="fieldlabel" for="m2-guardian">내 의사결정을 대신해 줄 신뢰하는 가족(후견인)이 있다면 메모해두세요</label>
+      <input type="text" id="m2-guardian" placeholder="예: 첫째 아들, 배우자 등">
+    </div>
+    <div class="box good">
+      <div class="box-t">📍 등록 안내</div>
+      <p>사전연명의료의향서는 이 화면에서 "작성"만 되는 거예요. 법적 효력이 생기려면 보건소나 국민건강보험공단 지사 등 지정 등록기관에서 본인이 직접 등록해야 해요. 가까운 등록기관은 "사전연명의료의향서 등록기관 찾기"로 검색하면 확인할 수 있어요.</p>
+    </div>
+    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
+  </section>
+
+  <!-- 모듈 ③ -->
+  <section class="screen" id="screen-m3">
+    <div class="section">
+      <p class="lead">남들 눈치 보느라 치르는 장례 대신, 내가 원하는 마지막 모습을 직접 골라보세요.</p>
+      <label class="fieldlabel">장례 규모와 방식</label>
+      <div class="choicerow" id="m3-type">
+        <button class="choice" data-val="3일장">일반 3일장</button>
+        <button class="choice" data-val="가족장">가족장(작은 장례식)</button>
+        <button class="choice" data-val="무빈소">빈소 없는 장례</button>
+      </div>
+    </div>
+    <div class="section">
+      <label class="fieldlabel">내가 쉴 곳 (안치 방법)</label>
+      <div class="choicerow" id="m3-rest">
+        <button class="choice" data-val="봉안당">봉안당(납골당)</button>
+        <button class="choice" data-val="자연장">수목장·잔디장(자연장)</button>
+        <button class="choice" data-val="산분장">바다에 뿌리는 산분장</button>
+      </div>
+    </div>
+    <div class="section">
+      <label class="fieldlabel" for="m3-note">영정 사진, 틀어줬으면 하는 음악, 꼭 연락할 지인 그룹 등을 메모해두세요</label>
+      <textarea id="m3-note" placeholder="예: 작년 여행 사진으로, 좋아했던 노래 한 곡, 동창회 모임은 꼭 연락..."></textarea>
+    </div>
+    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
+  </section>
+
+  <!-- 모듈 ④ ★핵심 -->
+  <section class="screen" id="screen-m4">
+    <div class="section">
+      <h3 style="font-size:15px; margin-bottom:10px;">🗺️ 숨은 자산 보물지도</h3>
+      <p class="lead">계좌번호나 비밀번호는 절대 받지 않아요. "어느 기관에 무엇이 있는지"만 가족에게 남겨두는 거예요. 개인 간 빌려준 돈이나 상조 가입처럼, 정부의 안심상속 원스톱으로도 잘 안 나오는 항목까지 챙길 수 있어요.</p>
+      <div class="checklist">
+        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="주거래 은행"><span class="ck-body"><span class="ck-title">주거래 은행이 있다</span><input type="text" placeholder="은행 이름만 (예: 농협, 국민)" class="m4-ck-detail"></span></label>
+        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="가입 보험"><span class="ck-body"><span class="ck-title">가입된 보험이 있다</span><input type="text" placeholder="보험사·상품명 정도 (예: 삼성생명 암보험)" class="m4-ck-detail"></span></label>
+        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="부동산"><span class="ck-body"><span class="ck-title">보유 부동산이 있다</span><input type="text" placeholder="예: 거주 아파트 1채" class="m4-ck-detail"></span></label>
+        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="개인 채권·계모임"><span class="ck-body"><span class="ck-title">개인적으로 빌려준 돈·계모임 돈이 있다</span><input type="text" placeholder="상대방이나 모임 이름 정도" class="m4-ck-detail"></span></label>
+        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="상조 가입"><span class="ck-body"><span class="ck-title">가입된 상조 회사가 있다</span><input type="text" placeholder="상조회사 이름" class="m4-ck-detail"></span></label>
+      </div>
+      <div class="box warn">
+        <div class="box-t">⚠️ 안전 원칙</div>
+        <p>계좌번호·비밀번호·카드번호는 여기 어디에도 입력하지 않아요. "무엇이 있는지"만 남겨두면, 가족이 사후에 해당 기관에 직접 문의해 100% 확인할 수 있어요.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3 style="font-size:15px; margin-bottom:10px;">⚖️ 법정상속분 계산기</h3>
+      <label class="fieldlabel">배우자가 계신가요?</label>
+      <div class="choicerow" id="m4-spouse">
+        <button class="choice" data-val="yes">예</button>
+        <button class="choice" data-val="no">아니요</button>
+      </div>
+      <label class="fieldlabel" style="margin-top:14px;">자녀는 몇 명인가요?</label>
+      <div class="choicerow" id="m4-kids">
+        <button class="choice" data-val="0">0명</button>
+        <button class="choice" data-val="1">1명</button>
+        <button class="choice" data-val="2">2명</button>
+        <button class="choice" data-val="3">3명</button>
+        <button class="choice" data-val="4">4명 이상</button>
+      </div>
+      <div class="box good" id="m4-result" hidden></div>
+    </div>
+
+    <div class="box warn">
+      <div class="box-t">📜 유언장이 무효가 되지 않는 5대 요건</div>
+      <p>자필증서 유언은 반드시 <b>①전문(내용 전체) ②연월일 ③주소 ④성명</b>을 본인이 직접 쓰고 <b>⑤날인(도장·인감)</b>까지 해야 효력이 생겨요. 컴퓨터로 타이핑했거나 서명만 하고 도장을 안 찍은 유언장은 법원에서 무효가 될 수 있어요. 공증을 받아두면 더 확실해요.</p>
+    </div>
+
+    <div class="box">
+      <div class="box-t">💰 사전 증여 절세 한도 (2026년 기준)</div>
+      <p>성년 자녀에게는 10년간 5,000만 원까지, 미성년 자녀에게는 10년간 2,000만 원까지 증여세 없이 줄 수 있어요. 2024년부터는 혼인·출산 시 추가로 최대 1억 원까지 더 공제돼요 (성년 자녀 기준 최대 1억 5,000만 원).</p>
+    </div>
+    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
+  </section>
+
+  <!-- 모듈 ⑤ -->
+  <section class="screen" id="screen-m5">
+    <div class="section">
+      <p class="lead">기준일을 입력하면 남은 가족이 순서대로 처리해야 할 행정 기한을 날짜로 계산해 드려요. (날짜 계산은 법령 기준을 그대로 따른 것이고, 주말·공휴일 보정은 간략화했어요)</p>
+      <label class="fieldlabel" for="m5-date">기준일 (사망일, 또는 미리 확인해볼 날짜)</label>
+      <input type="date" id="m5-date">
+      <button class="primarybtn" type="button" id="btn-m5-calc">타임라인 만들기</button>
+    </div>
+    <div id="m5-result" hidden></div>
+
+    <div class="bizbanner">💡 아래 전문가 연결은 비즈니스 모델 개념 시연이에요 — 실제 전문가 데이터베이스나 계약은 없고, 매칭이 어떻게 수익으로 이어질 수 있는지 보여주는 샘플이에요.</div>
+    <div class="bizcard">
+      <div class="t">👉 유언 공증 &amp; 상속 설계 전문 법무사 연결 (시연)</div>
+      <div class="s">모듈④에서 자필 유언·재산 배분에 관심을 표시하면 연결되는 자리예요.</div>
+    </div>
+    <div class="bizcard">
+      <div class="t">👉 상속·증여세 절세 전문 세무사 상담 연결 (시연)</div>
+      <div class="s">모듈④에서 사전 증여·부동산 상속을 체크하면 연결되는 자리예요.</div>
+    </div>
+    <div class="bizcard">
+      <div class="t">👉 수목장·작은 장례식 사전 견적 비교 연결 (시연)</div>
+      <div class="s">모듈③에서 수목장·가족장을 선택하면 연결되는 자리예요.</div>
+    </div>
+
+    <div class="section" style="margin-top:28px;">
+      <h3 style="font-size:15px; margin-bottom:10px;">🕯️ 기일(忌日) 알림</h3>
+      <p class="lead">돌아가신 날을 자녀들이 잊지 않도록, 매년 그날 캘린더로 알림이 오게 걸어둘 수 있어요. 타임라인을 먼저 만들면 버튼이 활성화돼요.</p>
+      <label class="fieldlabel" style="margin-top:4px;" for="m5-memorial-msg">기일에 가족에게 전하고 싶은 한마디 (선택)</label>
+      <textarea id="m5-memorial-msg" placeholder="예: 슬퍼하지 말고, 내가 좋아하던 음식 한 끼 나누며 날 기억해줘."></textarea>
+      <a class="ghostbtn" id="m5-cal" href="#" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; box-sizing:border-box; opacity:.5; pointer-events:none;">📅 매년 기일 알림을 캘린더에 추가</a>
+      <button class="ghostbtn" type="button" id="btn-m5-preview" style="opacity:.5; pointer-events:none;">📱 가족이 받을 화면 미리보기 (시연)</button>
+      <div class="box warn" style="margin-top:10px;">
+        <div class="box-t">⚠️ 꼭 알아두세요</div>
+        <p>이 버튼들은 매년 자동으로 문자를 보내주는 게 아니라, 누른 사람의 구글 캘린더에 "매년 반복" 알림을 등록해주는 거예요. 실제 문자·카카오톡 자동 발송은 유료 발송 서비스가 필요해서, 무료로 구현할 수 있는 가장 현실적인 방법으로 캘린더 알림을 선택했고, '미리보기'는 그 알림을 봤을 때 가족 화면이 어떤 느낌일지 보여주는 시연용 화면이에요. 자녀 각자의 캘린더에도 추가하면 각자 알림을 받을 수 있어요.</p>
+      </div>
+    </div>
+
+    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
+  </section>
+
+  <!-- 요약 카드 -->
+  <section class="screen" id="screen-summary">
+    <div class="sumcard">
+      <h2>인생안심 정리표</h2>
+      <div class="sub">지금까지 채운 내용을 모은 요약이에요 · <span id="sum-date"></span></div>
+      <div id="sum-body"></div>
+    </div>
+    <button class="primarybtn" type="button" id="btn-sum-copy">요약 복사하기</button>
+    <button class="ghostbtn" type="button" data-go="home">홈으로</button>
+  </section>
+</div>
+
+<!-- 수신 화면 미리보기 모달 (시연용 — 실제 발송 기능 아님) -->
+<div class="phonemodal-overlay" id="phonemodal-overlay" hidden>
+  <div class="phonemodal">
+    <div class="phonemodal-head">
+      <span class="phonemodal-label" id="phonemodal-label">📱 수신 화면 미리보기 (시연)</span>
+      <button class="phonemodal-close" id="phonemodal-close" type="button" aria-label="닫기">✕</button>
+    </div>
+    <div class="phonemodal-body">
+      <span class="phonemodal-chip" id="phonemodal-chip"></span>
+      <div class="phonemodal-msgbox">
+        <div class="phonemodal-from" id="phonemodal-from"></div>
+        <div class="phonemodal-text" id="phonemodal-text"></div>
+      </div>
+      <button class="ghostbtn" type="button" id="phonemodal-speak">🔊 음성으로 듣기</button>
+      <div class="box warn" style="margin-top:12px;">
+        <div class="box-t">⚠️ 이건 시연용 화면이에요</div>
+        <p id="phonemodal-caption"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('service-worker.js').catch(function(){ /* 설치 안 돼도 앱 자체는 그대로 동작해야 함 */ });
+    });
+  }
+</script>
+<script>
+(function(){
+  var state = {
+    m1:{proud:'', thanks:'', letter:''},
+    m2:{cpr:'', care:'', guardian:''},
+    m3:{type:'', rest:'', note:''},
+    m4:{checks:{}, spouse:'', kids:''},
+    m5:{date:'', memorialMsg:''}
+  };
+
+  var STORAGE_KEY = 'insaeng_ansim_state_v1';
+  function saveState(){
+    try{
+      var copy = JSON.parse(JSON.stringify(state));
+      if(copy.m5 && copy.m5.baseDate) copy.m5.baseDate = state.m5.date; // Date 객체는 저장하지 않고 날짜 문자열로 다시 만들 수 있게 함
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(copy));
+    }catch(e){ /* 저장 실패해도 앱은 계속 동작해야 함 */ }
+  }
+  function loadSavedState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return null;
+      return JSON.parse(raw);
+    }catch(e){ return null; }
+  }
+
+  var MOD_TITLES = {m1:'① 마음 갈무리', m2:'② 존엄한 결정', m3:'③ 마지막 소풍', m4:'④ 보물지도 & 유언 가이드', m5:'⑤ 사후 로드맵'};
+
+  var screens = {};
+  ['home','m1','m2','m3','m4','m5','summary'].forEach(function(k){
+    screens[k] = document.getElementById('screen-' + k);
+  });
+
+  function go(name){
+    Object.keys(screens).forEach(function(k){ screens[k].classList.toggle('active', k === name); });
+    var backBtn = document.getElementById('btn-top-back');
+    var title = document.getElementById('topbar-title');
+    var chip = document.getElementById('topbar-chip');
+    if(name === 'home'){
+      backBtn.hidden = true; title.textContent = '인생안심 길잡이'; chip.hidden = true;
+      updateHome();
+    } else if(name === 'summary'){
+      backBtn.hidden = false; title.textContent = '인생안심 정리표'; chip.hidden = true;
+      renderSummary();
+    } else {
+      backBtn.hidden = false; title.textContent = MOD_TITLES[name] || '';
+      chip.hidden = false; chip.textContent = '모듈 ' + name.replace('m','');
+    }
+    window.scrollTo(0,0);
+  }
+
+  document.querySelectorAll('[data-go]').forEach(function(btn){
+    btn.addEventListener('click', function(){ go(btn.dataset.go); });
+  });
+  document.getElementById('btn-top-back').addEventListener('click', function(){ go('home'); });
+
+  function moduleFilled(key){
+    if(key === 'm1') return !!state.m1.letter;
+    if(key === 'm2') return !!(state.m2.cpr || state.m2.care || state.m2.guardian);
+    if(key === 'm3') return !!(state.m3.type || state.m3.rest || state.m3.note);
+    if(key === 'm4') return Object.keys(state.m4.checks).length > 0 || !!(state.m4.spouse && state.m4.kids !== '');
+    if(key === 'm5') return !!state.m5.date;
+    return false;
+  }
+
+  function updateHome(){
+    var filled = 0;
+    ['m1','m2','m3','m4','m5'].forEach(function(k){
+      var done = moduleFilled(k);
+      document.getElementById('dot-' + k).classList.toggle('done', done);
+      if(done) filled++;
+    });
+    document.getElementById('sum-progress').textContent = filled === 0
+      ? '아직 채운 모듈이 없어요'
+      : filled + ' / 5개 모듈을 채웠어요';
+  }
+
+  /* ---- choice-row helper ---- */
+  function wireChoiceRow(id, onPick){
+    var row = document.getElementById(id);
+    row.querySelectorAll('.choice').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        row.querySelectorAll('.choice').forEach(function(b){ b.classList.remove('sel'); });
+        btn.classList.add('sel');
+        onPick(btn.dataset.val);
+        saveState();
+      });
+    });
+  }
+  function selectChoice(id, val){
+    if(!val) return;
+    var row = document.getElementById(id);
+    row.querySelectorAll('.choice').forEach(function(b){
+      b.classList.toggle('sel', b.dataset.val === val);
+    });
+  }
+
+  /* ---- 모듈 1 ---- */
+  document.getElementById('m1-proud').addEventListener('input', function(e){ state.m1.proud = e.target.value; saveState(); });
+  document.getElementById('m1-thanks').addEventListener('input', function(e){ state.m1.thanks = e.target.value; saveState(); });
+  document.getElementById('btn-m1-make').addEventListener('click', function(){
+    var proud = (state.m1.proud || '').trim();
+    var thanks = (state.m1.thanks || '').trim();
+    var lines = [];
+    lines.push('사랑하는 가족에게,');
+    lines.push('');
+    if(proud){
+      lines.push('지난 날을 돌아보면, ' + proud + '. 그 순간이 내 인생에서 가장 뿌듯한 기억으로 남아있어요.');
+    }
+    if(thanks){
+      lines.push('');
+      lines.push(thanks + ' 늘 마음속에 담아두고 있었는데, 이제야 글로 전합니다.');
+    }
+    lines.push('');
+    lines.push('부족한 게 많은 삶이었지만, 여러분이 있어 충분히 행복했습니다.');
+    lines.push('서로 아끼며 지내주길, 그것이 내가 남기는 마지막 바람입니다.');
+    var letter = lines.join('\n');
+    state.m1.letter = letter;
+    document.getElementById('m1-letter').textContent = letter;
+    document.getElementById('m1-letter-wrap').hidden = false;
+    saveState();
+  });
+
+  var m1cAgeSel = '';
+  wireChoiceRow('m1c-age', function(v){ m1cAgeSel = v; });
+
+  function makeCapsule(name, ageSel, yearVal, letter){
+    var card = name + '에게,\n\n네가 ' + ageSel + '살이 된 걸 진심으로 축하한다.\n\n'
+      + (letter || '') + '\n\n— 이 편지를 미리 써둔 날';
+    document.getElementById('m1c-card').textContent = card;
+    document.getElementById('m1c-wrap').hidden = false;
+
+    var now = new Date();
+    var targetDate = new Date(yearVal, now.getMonth(), now.getDate());
+    var link = gcalLink(
+      name + '에게 편지 전달하는 날',
+      targetDate,
+      name + '이 ' + ageSel + '살이 되는 해예요. 보관해둔 편지를 전달해주세요. (날짜는 대략적인 시기라, 정확한 생일로 캘린더에서 옮겨도 좋아요)',
+      false
+    );
+    document.getElementById('m1c-cal').href = link;
+    state.m1.capsule = {name:name, age:ageSel, year:yearVal, letter:letter};
+  }
+
+  document.getElementById('btn-m1c-make').addEventListener('click', function(){
+    var name = document.getElementById('m1c-name').value.trim();
+    var yearVal = parseInt(document.getElementById('m1c-year').value, 10);
+    var letter = document.getElementById('m1c-letter').value.trim();
+    var warnBox = document.getElementById('m1c-warn');
+    var warnText = document.getElementById('m1c-warn-text');
+    var nowYear = new Date().getFullYear();
+    if(!name || !m1cAgeSel || !yearVal || isNaN(yearVal) || yearVal <= nowYear){
+      warnText.textContent = '이름, 나이, 올해(' + nowYear + ')보다 미래인 연도(4자리)를 모두 입력해주세요.';
+      warnBox.hidden = false;
+      return;
+    }
+    warnBox.hidden = true;
+    makeCapsule(name, m1cAgeSel, yearVal, letter);
+    saveState();
+  });
+
+  /* ---- 모듈 2 ---- */
+  wireChoiceRow('m2-cpr', function(v){ state.m2.cpr = v; });
+  wireChoiceRow('m2-care', function(v){ state.m2.care = v; });
+  document.getElementById('m2-guardian').addEventListener('input', function(e){ state.m2.guardian = e.target.value; saveState(); });
+
+  /* ---- 모듈 3 ---- */
+  wireChoiceRow('m3-type', function(v){ state.m3.type = v; });
+  wireChoiceRow('m3-rest', function(v){ state.m3.rest = v; });
+  document.getElementById('m3-note').addEventListener('input', function(e){ state.m3.note = e.target.value; saveState(); });
+
+  /* ---- 모듈 4 ---- */
+  document.querySelectorAll('.m4-ck').forEach(function(ck){
+    ck.addEventListener('change', function(){
+      if(ck.checked){
+        state.m4.checks[ck.dataset.label] = '';
+      } else {
+        delete state.m4.checks[ck.dataset.label];
+      }
+      saveState();
+    });
+  });
+  document.querySelectorAll('.m4-ck-detail').forEach(function(inp){
+    inp.addEventListener('input', function(){
+      var ck = inp.closest('.checkrow').querySelector('.m4-ck');
+      if(ck.checked) state.m4.checks[ck.dataset.label] = inp.value;
+      saveState();
+    });
+  });
+
+  function computeHeirShare(){
+    var box = document.getElementById('m4-result');
+    var spouse = state.m4.spouse, kids = state.m4.kids;
+    if(!spouse || kids === '') { box.hidden = true; return; }
+    var kidsNum = kids === '4' ? 4 : parseInt(kids, 10);
+    var html = '';
+    if(spouse === 'yes' && kidsNum > 0){
+      var total = 1.5 + kidsNum;
+      var spousePct = (1.5/total*100).toFixed(1);
+      var childPct = (1/total*100).toFixed(1);
+      html = '<div class="box-t">⚖️ 예상 법정상속분 (일반적인 경우)</div>'
+        + '<p>배우자 <b>' + spousePct + '%</b>, 자녀 1명당 <b>' + childPct + '%</b>' + (kidsNum===4?' (4명 이상은 인원수대로 다시 나눠요)':'') + '</p>'
+        + '<p style="font-size:12px; opacity:.85;">※ 배우자와 직계비속이 공동상속할 때는 배우자가 자녀 몫의 1.5배를 받아요(민법 1009조). 부모님(직계존속) 생존, 유증 등 복잡한 사정이 있으면 결과가 달라지니 전문가 상담을 권장해요.</p>';
+    } else if(spouse === 'yes' && kidsNum === 0){
+      html = '<div class="box-t">⚖️ 예상 법정상속분 (일반적인 경우)</div>'
+        + '<p>직계비속이 없으면 배우자가 단독 상속하는 경우가 많아요. 다만 부모님(직계존속)이 생존해 계시면 함께 상속받는 등 사정에 따라 달라지니, 이 경우는 꼭 전문가 상담을 권장해요.</p>';
+    } else if(spouse === 'no' && kidsNum > 0){
+      var eachPct = (100/kidsNum).toFixed(1);
+      html = '<div class="box-t">⚖️ 예상 법정상속분 (일반적인 경우)</div>'
+        + '<p>자녀들이 균등하게 나눠 받아요. 자녀 1명당 <b>' + eachPct + '%</b></p>';
+    } else {
+      html = '<div class="box-t">⚖️ 법정상속분</div>'
+        + '<p>배우자·자녀가 모두 없는 경우는 상속 순위가 더 복잡해져요(부모·형제자매 등). 이 경우는 전문가 상담을 권장해요.</p>';
+    }
+    box.innerHTML = html;
+    box.hidden = false;
+  }
+  wireChoiceRow('m4-spouse', function(v){ state.m4.spouse = v; computeHeirShare(); });
+  wireChoiceRow('m4-kids', function(v){ state.m4.kids = v; computeHeirShare(); });
+
+  /* ---- 모듈 5: 날짜 계산 ---- */
+  function fmt(d){
+    return d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
+  }
+  function dayLabel(base, target){
+    var diff = Math.round((target - base) / 86400000);
+    return 'D+' + diff;
+  }
+  function endOfMonthPlus(base, n){
+    // 기준일이 속한 달의 말일로부터 n개월 후 '말일'
+    return new Date(base.getFullYear(), base.getMonth() + 1 + n, 0);
+  }
+  function plusMonths(base, n){
+    var d = new Date(base);
+    d.setMonth(d.getMonth() + n);
+    return d;
+  }
+  function pad2(n){ return String(n).padStart(2, '0'); }
+  function gcalLink(title, dateObj, details, recurYearly){
+    var y = dateObj.getFullYear(), m = dateObj.getMonth() + 1, d = dateObj.getDate();
+    var start = y + pad2(m) + pad2(d);
+    var endDate = new Date(dateObj.getTime() + 86400000);
+    var end = endDate.getFullYear() + pad2(endDate.getMonth() + 1) + pad2(endDate.getDate());
+    var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+      + '&text=' + encodeURIComponent(title)
+      + '&dates=' + start + '/' + end
+      + '&details=' + encodeURIComponent(details);
+    if(recurYearly) url += '&recur=' + encodeURIComponent('RRULE:FREQ=YEARLY');
+    return url;
+  }
+
+  /* ---- 수신 화면 미리보기(시연) ---- */
+  function speakText(text){
+    if('speechSynthesis' in window){
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = 'ko-KR'; u.rate = 0.95;
+      window.speechSynthesis.speak(u);
+    }
+  }
+  var PHONE_PRESETS = {
+    capsule: function(){
+      var c = state.m1.capsule;
+      if(!c) return null;
+      return {
+        chip: '⏳ 타임캡슐 편지 도착 (시연 화면)',
+        from: c.name + '님에게 — ' + c.year + '년, ' + c.age + '살',
+        text: c.name + '에게,\n\n네가 ' + c.age + '살이 된 걸 진심으로 축하한다.\n\n' + (c.letter || '') + '\n\n— 이 편지를 미리 써둔 날',
+        caption: '실제로는 이 화면처럼 저절로 뜨는 게 아니라, 가족이 캘린더 알림을 보고 보관해둔 편지를 그날 직접 전달하는 방식이에요.'
+      };
+    },
+    memorial: function(){
+      var base = state.m5.baseDate;
+      if(!base) return null;
+      var msg = (state.m5.memorialMsg || '').trim() || '오늘은 제가 떠난 날이에요. 슬퍼하기보다, 좋아하던 음식 한 끼 나누며 저를 떠올려 주세요.';
+      return {
+        chip: '🕯️ 기일 알림 (시연 화면)',
+        from: '매년 ' + fmt(base).slice(5) + ' · 가족 알림',
+        text: msg,
+        caption: '실제로는 문자가 저절로 오는 게 아니라, 가족이 등록해둔 구글 캘린더의 "매년 반복" 알림을 보고 그날을 함께 떠올리는 방식이에요.'
+      };
+    }
+  };
+  function openPhonePreview(type){
+    var data = PHONE_PRESETS[type] && PHONE_PRESETS[type]();
+    if(!data) return;
+    document.getElementById('phonemodal-chip').textContent = data.chip;
+    document.getElementById('phonemodal-from').textContent = data.from;
+    document.getElementById('phonemodal-text').textContent = data.text;
+    document.getElementById('phonemodal-caption').textContent = data.caption;
+    document.getElementById('phonemodal-speak').onclick = function(){ speakText(data.text); };
+    document.getElementById('phonemodal-overlay').hidden = false;
+  }
+  document.getElementById('phonemodal-close').addEventListener('click', function(){
+    document.getElementById('phonemodal-overlay').hidden = true;
+    window.speechSynthesis && window.speechSynthesis.cancel();
+  });
+  document.getElementById('phonemodal-overlay').addEventListener('click', function(e){
+    if(e.target === this){ this.hidden = true; window.speechSynthesis && window.speechSynthesis.cancel(); }
+  });
+  document.getElementById('btn-m1c-preview').addEventListener('click', function(){ openPhonePreview('capsule'); });
+  document.getElementById('btn-m5-preview').addEventListener('click', function(){ openPhonePreview('memorial'); });
+  document.getElementById('m5-memorial-msg').addEventListener('input', function(e){
+    state.m5.memorialMsg = e.target.value;
+    if(state.m5.baseDate){
+      var link = gcalLink('기일 — 돌아가신 날', state.m5.baseDate,
+        '매년 이날을 기억해요.' + (state.m5.memorialMsg.trim() ? ('\n\n' + state.m5.memorialMsg.trim()) : ''), true);
+      document.getElementById('m5-cal').href = link;
+    }
+    saveState();
+  });
+
+  function runM5Calc(val, memorialMsgVal){
+    if(!val) return;
+    state.m5.date = val;
+    var base = new Date(val + 'T00:00:00');
+
+    var items = [
+      { t:'화장장 예약 · 건강보험 장제비 신청 안내', s:'e하늘 장사정보시스템에서 화장장을 예약하고, 국민건강보험공단에 장제비를 문의해보세요.', due: new Date(base.getTime() + 2*86400000), tag:'장례 중' },
+      { t:'사망신고', s:'사망 사실을 안 날부터 1개월 이내 — 주민센터에 신고해요. 늦으면 과태료가 있어요.', due: plusMonths(base, 1), tag:'필수 행정' },
+      { t:'안심상속 원스톱서비스 신청', s:'사망신고와 함께 신청하면 한 번에 처리돼요. 고인의 예금·보험·부동산·채무·연금을 무료로 한 번에 조회할 수 있어요.', due: endOfMonthPlus(base, 12), tag:'필수 행정' },
+      { t:'상속포기 · 한정승인', s:'빚이 재산보다 많을 수 있다면, 상속개시 있음을 안 날부터 3개월 이내 가정법원에 신청해야 빚을 물려받지 않아요.', due: plusMonths(base, 3), tag:'법률 골든타임' },
+      { t:'상속세 신고 · 납부', s:'상속개시일이 속한 달의 말일부터 6개월 이내 (상속인이 해외에 있으면 9개월).', due: endOfMonthPlus(base, 6), tag:'세무' },
+      { t:'취득세 신고 (상속 부동산)', s:'상속개시일이 속한 달의 말일부터 6개월 이내.', due: endOfMonthPlus(base, 6), tag:'세무' }
+    ];
+    items.sort(function(a,b){ return a.due - b.due; });
+
+    var html = '<div class="box" style="margin-top:0;">';
+    items.forEach(function(it){
+      html += '<div class="tlrow"><div class="d">' + dayLabel(base, it.due) + '</div><div class="body">'
+        + '<div class="t">' + it.t + '</div>'
+        + '<div class="s">' + it.s + '</div>'
+        + '<div class="due">' + it.tag + ' · 마감 ' + fmt(it.due) + '</div>'
+        + '</div></div>';
+    });
+    html += '</div>'
+      + '<div class="box warn" style="margin-top:10px;"><div class="box-t">⚠️ 참고</div>'
+      + '<p>마감일이 토요일·일요일·공휴일이면 보통 다음 평일까지로 늘어나요. 이 프로토타입은 간단한 달 계산만 반영했고, 공휴일까지 반영한 정확한 날짜는 실제 신청 전 꼭 다시 확인하세요.</p></div>';
+    document.getElementById('m5-result').innerHTML = html;
+    document.getElementById('m5-result').hidden = false;
+
+    state.m5.baseDate = base;
+    state.m5.memorialMsg = memorialMsgVal || '';
+    var annivDetails = '매년 이날을 기억해요.' + (state.m5.memorialMsg.trim() ? ('\n\n' + state.m5.memorialMsg.trim()) : '');
+    var annivLink = gcalLink('기일 — 돌아가신 날', base, annivDetails, true);
+    var calBtn = document.getElementById('m5-cal');
+    calBtn.href = annivLink;
+    calBtn.style.opacity = '1';
+    calBtn.style.pointerEvents = 'auto';
+    var prevBtn = document.getElementById('btn-m5-preview');
+    prevBtn.style.opacity = '1';
+    prevBtn.style.pointerEvents = 'auto';
+  }
+
+  document.getElementById('btn-m5-calc').addEventListener('click', function(){
+    var val = document.getElementById('m5-date').value;
+    runM5Calc(val, document.getElementById('m5-memorial-msg').value);
+    saveState();
+  });
+
+  /* ---- 요약 카드 ---- */
+  function renderSummary(){
+    document.getElementById('sum-date').textContent = new Date().toISOString().slice(0,10).replace(/-/g,'.');
+    var body = document.getElementById('sum-body');
+    var html = '';
+
+    html += '<div class="sumsec"><div class="h">① 마음 갈무리</div><div class="v">'
+      + (state.m1.letter ? state.m1.letter.replace(/\n/g,'<br>') : '<span class="empty">아직 작성하지 않았어요</span>')
+      + '</div></div>';
+
+    html += '<div class="sumsec"><div class="h">⏳ 타임캡슐 편지</div><div class="v">'
+      + (state.m1.capsule ? (state.m1.capsule.name + '에게, ' + state.m1.capsule.year + '년(' + state.m1.capsule.age + '살) 전달 예정')
+        : '<span class="empty">아직 작성하지 않았어요</span>')
+      + '</div></div>';
+
+    html += '<div class="sumsec"><div class="h">② 존엄한 결정</div><div class="v">';
+    if(state.m2.cpr || state.m2.care || state.m2.guardian){
+      var p2 = [];
+      if(state.m2.cpr) p2.push('연명치료: ' + state.m2.cpr);
+      if(state.m2.care) p2.push('돌봄 방식: ' + state.m2.care);
+      if(state.m2.guardian) p2.push('후견인 메모: ' + state.m2.guardian);
+      html += p2.join(' · ');
+    } else { html += '<span class="empty">아직 작성하지 않았어요</span>'; }
+    html += '</div></div>';
+
+    html += '<div class="sumsec"><div class="h">③ 마지막 소풍</div><div class="v">';
+    if(state.m3.type || state.m3.rest || state.m3.note){
+      var p3 = [];
+      if(state.m3.type) p3.push('장례 방식: ' + state.m3.type);
+      if(state.m3.rest) p3.push('안치 방법: ' + state.m3.rest);
+      if(state.m3.note) p3.push('메모: ' + state.m3.note);
+      html += p3.join(' · ');
+    } else { html += '<span class="empty">아직 작성하지 않았어요</span>'; }
+    html += '</div></div>';
+
+    html += '<div class="sumsec"><div class="h">④ 보물지도 &amp; 상속</div><div class="v">';
+    var checks = Object.keys(state.m4.checks);
+    var p4 = [];
+    if(checks.length){
+      p4.push('보유 항목: ' + checks.map(function(k){ var d = state.m4.checks[k]; return d ? (k + '(' + d + ')') : k; }).join(', '));
+    }
+    if(state.m4.spouse && state.m4.kids !== ''){
+      p4.push('가족구성: 배우자 ' + (state.m4.spouse==='yes'?'있음':'없음') + ', 자녀 ' + state.m4.kids + (state.m4.kids==='4'?'명 이상':'명'));
+    }
+    html += p4.length ? p4.join(' · ') : '<span class="empty">아직 작성하지 않았어요</span>';
+    html += '</div></div>';
+
+    html += '<div class="sumsec"><div class="h">⑤ 사후 로드맵</div><div class="v">';
+    html += state.m5.date ? ('기준일 ' + state.m5.date + '로 타임라인을 확인했어요') : '<span class="empty">아직 작성하지 않았어요</span>';
+    html += '</div></div>';
+
+    html += '<div class="sumsec"><div class="h">🕯️ 기일 알림</div><div class="v">'
+      + (state.m5.baseDate ? ('매년 반복 캘린더 알림 설정됨' + (state.m5.memorialMsg && state.m5.memorialMsg.trim() ? (' · 한마디: ' + state.m5.memorialMsg.trim()) : ''))
+        : '<span class="empty">아직 설정하지 않았어요</span>')
+      + '</div></div>';
+
+    body.innerHTML = html;
+  }
+
+  document.getElementById('btn-sum-copy').addEventListener('click', function(){
+    var text = document.getElementById('sum-body').innerText;
+    try{
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText('인생안심 정리표\n\n' + text).catch(function(){ fallbackSelect(); });
+      } else { fallbackSelect(); }
+    }catch(e){ fallbackSelect(); }
+    function fallbackSelect(){
+      var range = document.createRange();
+      range.selectNode(document.getElementById('sum-body'));
+      var sel = window.getSelection();
+      sel.removeAllRanges(); sel.addRange(range);
+    }
+  });
+
+  /* ---- 저장된 내용 복원 ---- */
+  function restoreFromSaved(){
+    var saved = loadSavedState();
+    if(!saved) return;
+
+    // m1
+    if(saved.m1){
+      state.m1.proud = saved.m1.proud || '';
+      state.m1.thanks = saved.m1.thanks || '';
+      document.getElementById('m1-proud').value = state.m1.proud;
+      document.getElementById('m1-thanks').value = state.m1.thanks;
+      if(saved.m1.letter){
+        state.m1.letter = saved.m1.letter;
+        document.getElementById('m1-letter').textContent = state.m1.letter;
+        document.getElementById('m1-letter-wrap').hidden = false;
+      }
+      if(saved.m1.capsule){
+        var c = saved.m1.capsule;
+        document.getElementById('m1c-name').value = c.name || '';
+        document.getElementById('m1c-year').value = c.year || '';
+        document.getElementById('m1c-letter').value = c.letter || '';
+        m1cAgeSel = c.age || '';
+        selectChoice('m1c-age', m1cAgeSel);
+        if(c.name && c.age && c.year) makeCapsule(c.name, c.age, c.year, c.letter);
+      }
+    }
+    // m2
+    if(saved.m2){
+      state.m2.cpr = saved.m2.cpr || '';
+      state.m2.care = saved.m2.care || '';
+      state.m2.guardian = saved.m2.guardian || '';
+      selectChoice('m2-cpr', state.m2.cpr);
+      selectChoice('m2-care', state.m2.care);
+      document.getElementById('m2-guardian').value = state.m2.guardian;
+    }
+    // m3
+    if(saved.m3){
+      state.m3.type = saved.m3.type || '';
+      state.m3.rest = saved.m3.rest || '';
+      state.m3.note = saved.m3.note || '';
+      selectChoice('m3-type', state.m3.type);
+      selectChoice('m3-rest', state.m3.rest);
+      document.getElementById('m3-note').value = state.m3.note;
+    }
+    // m4
+    if(saved.m4){
+      state.m4.checks = saved.m4.checks || {};
+      state.m4.spouse = saved.m4.spouse || '';
+      state.m4.kids = saved.m4.kids || '';
+      document.querySelectorAll('.m4-ck').forEach(function(ck){
+        var label = ck.dataset.label;
+        if(Object.prototype.hasOwnProperty.call(state.m4.checks, label)){
+          ck.checked = true;
+          var detail = ck.closest('.checkrow').querySelector('.m4-ck-detail');
+          detail.value = state.m4.checks[label] || '';
+        }
+      });
+      selectChoice('m4-spouse', state.m4.spouse);
+      selectChoice('m4-kids', state.m4.kids);
+      computeHeirShare();
+    }
+    // m5
+    if(saved.m5 && saved.m5.date){
+      document.getElementById('m5-date').value = saved.m5.date;
+      document.getElementById('m5-memorial-msg').value = saved.m5.memorialMsg || '';
+      runM5Calc(saved.m5.date, saved.m5.memorialMsg || '');
+    }
+  }
+
+  document.getElementById('btn-reset-all').addEventListener('click', function(){
+    if(!window.confirm('이 기기에 저장된 모든 내용을 지울까요? 이 작업은 되돌릴 수 없어요.')) return;
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    location.reload();
+  });
+
+  restoreFromSaved();
+  updateHome();
+  go('home');
+})();
+</script>
+</body>
+</html>

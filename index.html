@@ -112,14 +112,14 @@
   <div id="app"></div>
 
   <script>
-    // ★ 1. 기존 구버전 서비스워커 캐시 충돌 자동 해제 (흰 화면/검은 화면 멈춤 방지)
+    // 구버전 서비스워커 캐시 자동 해제
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(regs) {
         for (let reg of regs) { reg.unregister(); }
       });
     }
 
-    const STORAGE_KEY = 'insaeng_ansim_v3';
+    const STORAGE_KEY = 'insaeng_ansim_v4';
     const API_KEY_STORAGE = 'insaeng_ansim_gemini_key';
 
     const DEFAULT_STATE = {
@@ -177,9 +177,11 @@
       },
       treasure: {
         assets: [
-          { category: '주거래 은행 예·적금', inst: 'NH농협은행 / 국민은행', memo: '안방 서랍장 두 번째 칸 파란색 파일철에 통장 보관 (계좌번호 미기재)' },
-          { category: '실손·생명보험 증권', inst: '삼성생명 / 우체국보험', memo: '휴대폰 앱 및 거실 책장 문서함에 종이 증권 보관' },
-          { category: '부동산·계약 문서', inst: '자택 등기권리증', memo: '안방 금고 상단 서류봉투 보관' }
+          { id: 'ast-1', category: '🏦 예·적금/통장', inst: 'NH농협은행 (주거래)', memo: '안방 서랍장 두 번째 칸 파란색 파일철에 통장 보관 (계좌번호 미기재)', checked: true },
+          { id: 'ast-2', category: '🏦 예·적금/통장', inst: 'KB국민은행 (모임·비상금)', memo: '스마트폰 KB스타뱅킹 앱 및 거실 서랍 통장지갑에 보관', checked: true },
+          { id: 'ast-3', category: '🛡️ 보험 증권', inst: '삼성생명 / 우체국 실손보험', memo: '거실 책장 맨 아래 문서함에 종이 보험증권 묶음 보관', checked: true },
+          { id: 'ast-4', category: '🏠 부동산/문서', inst: '자택 등기권리증 · 매매계약서', memo: '안방 장롱 안쪽 금고 상단 서류봉투 보관', checked: true },
+          { id: 'ast-5', category: '📱 디지털 계정/사진', inst: '구글 포토 · 카카오톡 앨범', memo: '가족 공유 클라우드 폴더에 옛 가족사진 백업 완료', checked: true }
         ],
         hasSpouse: true,
         childrenCount: 2
@@ -192,9 +194,14 @@
       }
     };
 
-    let state = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || JSON.parse(JSON.stringify(DEFAULT_STATE));
+    // 이전 버전(v3) 데이터가 있으면 자연스럽게 이어받기
+    let savedRaw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('insaeng_ansim_v3');
+    let state = savedRaw ? JSON.parse(savedRaw) : JSON.parse(JSON.stringify(DEFAULT_STATE));
+    if (!state.treasure || !Array.isArray(state.treasure.assets)) {
+      state.treasure = JSON.parse(JSON.stringify(DEFAULT_STATE.treasure));
+    }
     let apiKey = localStorage.getItem(API_KEY_STORAGE) || '';
-    let activeModal = null; // 'addFamily' | 'preview' | 'api' | null
+    let activeModal = null; // 'addFamily' | 'addAsset' | 'preview' | 'api' | null
 
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -377,8 +384,8 @@
             <div style="display:flex; align-items:center; gap:14px;">
               <div class="num-circle">④</div>
               <div>
-                <div style="font-weight:900; font-size:17px;">보물지도 & 유언 가이드 <span class="badge">★ 핵심</span></div>
-                <div style="font-size:12px; color:#B894A8; margin-top:3px;">숨은 자산 체크 + 법정상속분(1.5:1)·유언 5대 요건·증여세 공제 고정 안내</div>
+                <div style="font-weight:900; font-size:17px;">보물지도 & 유언 가이드 <span class="badge">★ 자산 추가 (${state.treasure.assets.length}건)</span></div>
+                <div style="font-size:12px; color:#B894A8; margin-top:3px;">통장·보험·부동산 위치 무제한 추가 + 법정상속분(1.5:1)·유언·증여세 고정 안내</div>
               </div>
             </div>
             <span style="color:#9E6B88; font-size:20px;">›</span>
@@ -521,27 +528,57 @@
         `;
       }
 
-      // 모듈 4: 보물지도 & 유언 가이드
+      // 모듈 4: ★ 보물지도 무제한 추가/삭제 기능 + 유언/증여 가이드
       if (state.activeModule === 4) {
         html += `
-          <div class="card">
-            <h3>🗺️ 1. 내 자산 보물지도 (계좌번호 입력 금지 · 위치만 기록)</h3>
+          <div class="card" style="border:2px solid #8C4A6E;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+              <div>
+                <span class="badge" style="margin-left:0;">NEW 자산 무제한 추가 지원</span>
+                <h3 style="margin:4px 0 0;">🗺️ 1. 내 자산 보물지도 (${state.treasure.assets.length}건 기록됨)</h3>
+                <div style="font-size:12px; color:#CDB0C0; margin-top:2px;">
+                  보안을 위해 <strong>계좌번호나 비밀번호는 적지 마시고</strong>, 어느 금융기관·어느 서랍에 무엇이 있는지만 무제한 추가해 두세요.
+                </div>
+              </div>
+              <button class="btn btn-primary" onclick="openModal('addAsset')">➕ 자산 항목 추가하기</button>
+            </div>
+
             ${state.treasure.assets.map((a, i) => `
-              <div style="background:#180B14; padding:12px; border-radius:14px; border:1px solid #4A253B; margin-bottom:10px;">
-                <strong style="color:#F2CFE2; font-size:13px;">${a.category}</strong>
+              <div style="background:#180B14; padding:14px; border-radius:16px; border:1px solid #542C44; margin-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="badge" style="margin-left:0; background:#4A253B; font-size:12px; padding:4px 10px;">${a.category}</span>
+                    <button class="btn" style="padding:3px 8px; font-size:11px; background:${a.checked !== false ? '#065F46' : '#381D2F'}; border-color:${a.checked !== false ? '#10B981' : '#633552'};" onclick="toggleAssetCheck(${i})">
+                      ${a.checked !== false ? '✓ 보관 확인됨' : '미확인'}
+                    </button>
+                  </div>
+                  ${state.treasure.assets.length > 1 ? `
+                    <button class="btn" style="padding:4px 10px; font-size:11px; color:#FDA4AF;" onclick="deleteAsset(${i})">삭제</button>
+                  ` : ''}
+                </div>
                 <div class="grid-2">
-                  <input type="text" value="${a.inst}" oninput="state.treasure.assets[${i}].inst=this.value; saveState();" placeholder="기관명" />
-                  <input type="text" value="${a.memo}" oninput="state.treasure.assets[${i}].memo=this.value; saveState();" placeholder="보관 위치 (계좌번호 적지 마세요)" />
+                  <div>
+                    <label style="margin-top:2px;">금융기관명 / 자산 명칭</label>
+                    <input type="text" value="${a.inst}" oninput="updateAsset(${i}, 'inst', this.value)" placeholder="예: NH농협은행, 삼성생명 실손보험" />
+                  </div>
+                  <div>
+                    <label style="margin-top:2px;">서류·통장 보관 위치 (계좌번호 입력 금지)</label>
+                    <input type="text" value="${a.memo}" oninput="updateAsset(${i}, 'memo', this.value)" placeholder="예: 안방 서랍장 2번째 칸 파란 파일철" />
+                  </div>
                 </div>
               </div>
             `).join('')}
+
+            <button class="btn btn-primary" style="width:100%; margin-top:6px; padding:12px;" onclick="openModal('addAsset')">
+              ➕ 새로운 자산(통장·보험·부동산·디지털계정·금고) 한 건 더 추가하기
+            </button>
           </div>
 
           <div class="card">
             <h3>⚖️ 2. 법정상속분 자동 계산기 (민법 제1009조 배우자 1.5 : 자녀 각 1 고정)</h3>
             <div class="grid-2">
               <button class="btn" onclick="state.treasure.hasSpouse=!state.treasure.hasSpouse; saveState(); render();">
-                배우자: ${state.treasure.hasSpouse ? '있음 (1.5)' : '없음'}
+                배우자: ${state.treasure.hasSpouse ? '있음 (가중치 1.5)' : '없음'}
               </button>
               <div style="display:flex; align-items:center; justify-content:space-between; background:#180B14; padding:8px 14px; border-radius:12px; border:1px solid #542C44;">
                 <span>자녀 수: <strong>${state.treasure.childrenCount}명</strong></span>
@@ -619,11 +656,11 @@
 
       html += `</div>`;
 
-      // 모달창 렌더링
+      // 모달 1: 새 가족 구성원 추가
       if (activeModal === 'addFamily') {
         html += `
-          <div class="modal-bg">
-            <div class="modal-box">
+          <div class="modal-bg" onclick="closeModal()">
+            <div class="modal-box" onclick="event.stopPropagation()">
               <h3 style="margin-top:0;">➕ 새 가족 구성원 편지함 추가</h3>
               <label>가족 호칭 또는 이름</label>
               <input id="nf-name" type="text" placeholder="예: 셋째 김별, 손주 민준이" />
@@ -649,6 +686,38 @@
         `;
       }
 
+      // 모달 2: ★ 새 자산 항목 추가 (보물지도 멀티 추가 모달)
+      if (activeModal === 'addAsset') {
+        html += `
+          <div class="modal-bg" onclick="closeModal()">
+            <div class="modal-box" onclick="event.stopPropagation()">
+              <h3 style="margin-top:0;">➕ 보물지도 새 자산 항목 추가</h3>
+              <p style="font-size:12px; color:#CDB0C0; margin-top:0;">
+                계좌번호나 비밀번호는 적지 마시고, 가족들이 찾을 수 있게 <strong>기관명과 보관 위치</strong>만 적어주세요.
+              </p>
+              <label>자산 종류 선택</label>
+              <select id="na-cat">
+                <option value="🏦 예·적금/통장">🏦 은행 예·적금 / 통장</option>
+                <option value="🛡️ 보험 증권">🛡️ 생명·실손·암보험 증권</option>
+                <option value="🏠 부동산/문서">🏠 부동산 등기권리증 · 임대차계약서</option>
+                <option value="📈 연금/주식/펀드">📈 개인연금 · 퇴직연금 · 증권사 계좌</option>
+                <option value="📱 디지털 계정/사진">📱 스마트폰 사진첩 · 클라우드 · 상조 가입</option>
+                <option value="📦 기타 귀중품/금고">📦 금고 · 귀금속 · 대여금 증서 등 기타</option>
+              </select>
+              <label>금융기관명 또는 자산 명칭</label>
+              <input id="na-inst" type="text" placeholder="예: 신한은행 적금, 현대해상 운전자보험, 상조 가입증서" />
+              <label>서류·통장 보관 위치 메모 (계좌번호 미기재)</label>
+              <input id="na-memo" type="text" placeholder="예: 안방 화장대 왼쪽 서랍 빨간색 파우치 안" />
+              <div class="grid-2" style="margin-top:16px;">
+                <button class="btn" onclick="closeModal()">취소</button>
+                <button class="btn btn-primary" onclick="confirmAddAsset()">자산 추가하기</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 모달 3: 수신 화면 미리보기
       if (activeModal === 'preview') {
         html += `
           <div class="modal-bg" onclick="closeModal()">
@@ -672,6 +741,7 @@
         `;
       }
 
+      // 모달 4: API 키 설정
       if (activeModal === 'api') {
         html += `
           <div class="modal-bg" onclick="closeModal()">
@@ -691,7 +761,7 @@
       root.innerHTML = html;
     }
 
-    // 이벤트 핸들러 함수들
+    // 이벤트 핸들러
     window.goHome = () => { state.activeModule = null; saveState(); render(); };
     window.openModule = (n) => { state.activeModule = n; saveState(); render(); window.scrollTo(0,0); };
     window.openModal = (m) => { activeModal = m; render(); };
@@ -700,6 +770,49 @@
     window.updateAuto = (k, v) => { state.autobiography[k] = v; saveState(); };
     window.updateFam = (k, v) => { const f = getCurrentFamily(); if (f) { f[k] = v; saveState(); } };
     window.toggleMed = (k) => { state.medical[k] = !state.medical[k]; saveState(); render(); };
+
+    // ★ 보물지도 자산 추가/수정/삭제 핸들러
+    window.updateAsset = (idx, key, val) => {
+      if (state.treasure.assets[idx]) {
+        state.treasure.assets[idx][key] = val;
+        saveState();
+      }
+    };
+    window.toggleAssetCheck = (idx) => {
+      if (state.treasure.assets[idx]) {
+        state.treasure.assets[idx].checked = state.treasure.assets[idx].checked === false ? true : false;
+        saveState();
+        render();
+      }
+    };
+    window.deleteAsset = (idx) => {
+      if (state.treasure.assets.length <= 1) {
+        alert('최소 1개의 자산 항목은 남아있어야 합니다.');
+        return;
+      }
+      state.treasure.assets.splice(idx, 1);
+      saveState();
+      render();
+    };
+    window.confirmAddAsset = () => {
+      const cat = document.getElementById('na-cat')?.value || '🏦 예·적금/통장';
+      const inst = document.getElementById('na-inst')?.value?.trim();
+      const memo = document.getElementById('na-memo')?.value?.trim() || '보관 위치를 입력해 주세요';
+      if (!inst) {
+        alert('금융기관명이나 자산 명칭을 입력해 주세요.');
+        return;
+      }
+      state.treasure.assets.push({
+        id: 'ast-' + Date.now(),
+        category: cat,
+        inst: inst,
+        memo: memo,
+        checked: true
+      });
+      saveState();
+      closeModal();
+    };
+
     window.saveKeyFromModal = () => {
       const val = document.getElementById('api-input')?.value || '';
       apiKey = val;

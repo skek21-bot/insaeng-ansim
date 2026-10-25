@@ -106,28 +106,45 @@
       background: #261420; border: 2px solid #8C4A6E; border-radius: 24px;
       max-width: 460px; width: 100%; padding: 22px; max-height: 90vh; overflow-y: auto;
     }
+    /* 책자 모달 스타일 */
+    .book-modal {
+      background: #FFFBFD; color: #2D1B24; border-radius: 20px;
+      max-width: 620px; width: 100%; padding: 32px; max-height: 90vh; overflow-y: auto;
+      font-family: 'Noto Serif KR', serif; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .book-title { text-align: center; font-size: 24px; font-weight: 900; color: #632B4A; margin-bottom: 4px; }
+    .book-sub { text-align: center; font-size: 13px; color: #8C627A; margin-bottom: 24px; border-bottom: 2px solid #E8D0DF; padding-bottom: 12px; }
+    .book-chapter { font-size: 16px; font-weight: 700; color: #632B4A; margin-top: 20px; margin-bottom: 8px; border-left: 4px solid #8C4A6E; padding-left: 8px; }
+    .book-text { font-size: 14px; line-height: 1.8; white-space: pre-wrap; color: #3D2B34; background: #F8F0F4; padding: 14px; border-radius: 12px; }
+    @media print {
+      body * { visibility: hidden; }
+      #book-print-area, #book-print-area * { visibility: visible; }
+      #book-print-area { position: absolute; left: 0; top: 0; width: 100%; background: #fff; color: #000; }
+    }
   </style>
 </head>
 <body>
   <div id="app"></div>
 
   <script>
-    // 구버전 서비스워커 캐시 자동 해제
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then(function(regs) {
         for (let reg of regs) { reg.unregister(); }
       });
     }
 
-    const STORAGE_KEY = 'insaeng_ansim_v4';
+    const STORAGE_KEY = 'insaeng_ansim_v5';
     const API_KEY_STORAGE = 'insaeng_ansim_gemini_key';
 
     const DEFAULT_STATE = {
       activeModule: null,
       autobiography: {
         q1: '가족들을 위해 열심히 달렸던 젊은 날의 봄날과, 아이들이 처음 태어났던 날의 미소가 가장 기억에 남습니다.',
-        q2: '힘든 순간도 있었지만 우리 가족이 곁에 있어 참 따뜻하고 행복한 삶이었습니다.',
-        q3: '서로 다투지 말고 명절이나 기일에는 맛있는 음식을 먹으며 웃는 얼굴로 나를 떠올려 주렴.'
+        q2: '살아오면서 때로는 조급함에 실수를 하기도 하고, 내 뜻대로 되지 않아 가장 크게 후회했던 순간이 있었습니다. 하지만 그 아픔이 나를 더 단단하게 만들었어요.',
+        q3: '내 인생에 평생 마르지 않는 은혜를 베풀어준 부모님과, 말없이 내 곁을 지켜준 귀한 인연들에게 진심으로 고마움을 전합니다.',
+        q4: '이 세상을 떠날 때 물질적인 것보다 "따뜻한 마음과 성실함은 결코 배신하지 않는다"는 신조를 남기고 싶습니다.',
+        q5: '힘든 순간도 있었지만 우리 가족이 곁에 있어 참 따뜻하고 행복한 삶이었습니다.',
+        q6: '서로 다투지 말고 명절이나 기일에는 맛있는 음식을 먹으며 웃는 얼굴로 나를 떠올려 주렴.'
       },
       familyMembers: [
         {
@@ -151,17 +168,6 @@
           email: '',
           keywords: '든든한 맏이여서 늘 고마웠어, 동생과 사이좋게 지내고 네 꿈을 응원해',
           letter: '우리 든든한 첫째야, 언제나 맏이로서 부모 마음 먼저 헤아려주고 동생을 챙겨주어 참 고맙고 대견했단다. 살면서 힘든 날이 찾아와도 너는 충분히 지혜롭게 이겨낼 수 있는 멋진 사람이야. 늘 응원한다!'
-        },
-        {
-          id: 'fam-3',
-          name: '둘째 자녀',
-          relation: '둘째 자녀',
-          icon: '👦',
-          occasion: '스무 살 성년이 되거나 독립할 때',
-          targetDate: '2035-03-02',
-          email: '',
-          keywords: '우리 집 비타민 막내, 기죽지 말고 언제나 당당하게 웃으며 살아가렴',
-          letter: '언제 봐도 눈에 넣어도 아프지 않을 우리 막내야, 네가 환하게 웃어줄 때마다 엄마 아빠는 세상의 모든 피로가 다 녹아내렸단다. 어디에 있든 기죽지 말고 지금처럼 밝고 따뜻한 어른으로 자라주렴!'
         }
       ],
       selectedFamilyId: 'fam-1',
@@ -177,11 +183,8 @@
       },
       treasure: {
         assets: [
-          { id: 'ast-1', category: '🏦 예·적금/통장', inst: 'NH농협은행 (주거래)', memo: '안방 서랍장 두 번째 칸 파란색 파일철에 통장 보관 (계좌번호 미기재)', checked: true },
-          { id: 'ast-2', category: '🏦 예·적금/통장', inst: 'KB국민은행 (모임·비상금)', memo: '스마트폰 KB스타뱅킹 앱 및 거실 서랍 통장지갑에 보관', checked: true },
-          { id: 'ast-3', category: '🛡️ 보험 증권', inst: '삼성생명 / 우체국 실손보험', memo: '거실 책장 맨 아래 문서함에 종이 보험증권 묶음 보관', checked: true },
-          { id: 'ast-4', category: '🏠 부동산/문서', inst: '자택 등기권리증 · 매매계약서', memo: '안방 장롱 안쪽 금고 상단 서류봉투 보관', checked: true },
-          { id: 'ast-5', category: '📱 디지털 계정/사진', inst: '구글 포토 · 카카오톡 앨범', memo: '가족 공유 클라우드 폴더에 옛 가족사진 백업 완료', checked: true }
+          { id: 'ast-1', category: '🏦 예·적금/통장', inst: 'NH농협은행 (주거래)', memo: '안방 서랍장 두 번째 칸 파란색 파일철에 통장 보관', checked: true },
+          { id: 'ast-2', category: '🛡️ 보험 증권', inst: '삼성생명 실손보험', memo: '거실 책장 문서함에 종이 보험증권 보관', checked: true }
         ],
         hasSpouse: true,
         childrenCount: 2
@@ -194,14 +197,13 @@
       }
     };
 
-    // 이전 버전(v3) 데이터가 있으면 자연스럽게 이어받기
-    let savedRaw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('insaeng_ansim_v3');
+    let savedRaw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('insaeng_ansim_v4') || localStorage.getItem('insaeng_ansim_v3');
     let state = savedRaw ? JSON.parse(savedRaw) : JSON.parse(JSON.stringify(DEFAULT_STATE));
-    if (!state.treasure || !Array.isArray(state.treasure.assets)) {
-      state.treasure = JSON.parse(JSON.stringify(DEFAULT_STATE.treasure));
+    if (!state.autobiography || typeof state.autobiography.q4 === 'undefined') {
+      state.autobiography = JSON.parse(JSON.stringify(DEFAULT_STATE.autobiography));
     }
     let apiKey = localStorage.getItem(API_KEY_STORAGE) || '';
-    let activeModal = null; // 'addFamily' | 'addAsset' | 'preview' | 'api' | null
+    let activeModal = null; // 'addFamily' | 'addAsset' | 'preview' | 'api' | 'book' | null
 
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -211,7 +213,6 @@
       return state.familyMembers.find(f => f.id === state.selectedFamilyId) || state.familyMembers[0];
     }
 
-    // 구글 캘린더 일정 등록 + 가족 이메일 게스트 초대창 열기
     function openGoogleCalendar(title, dateStr, details, emails, isYearly) {
       const clean = (dateStr || '2026-10-25').replace(/-/g, '');
       const y = parseInt(clean.slice(0,4), 10);
@@ -232,21 +233,16 @@
       window.open(url, '_blank');
     }
 
-    // 카톡 공유용 .ics 달력 파일 다운로드
     function downloadIcs(title, dateStr, details, isYearly, filename) {
       const clean = (dateStr || '2026-10-25').replace(/-/g, '');
       const lines = [
-        'BEGIN:VCALENDAR',
-        'VERSION:2.0',
-        'PRODID:-//InsaengAnsim//KR',
-        'BEGIN:VEVENT',
-        'DTSTART;VALUE=DATE:' + clean
+        'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//InsaengAnsim//KR',
+        'BEGIN:VEVENT', 'DTSTART;VALUE=DATE:' + clean
       ];
       if (isYearly) lines.push('RRULE:FREQ=YEARLY');
       lines.push('SUMMARY:' + title);
       lines.push('DESCRIPTION:' + (details || '').replace(/\r?\n/g, '\\n'));
-      lines.push('END:VEVENT');
-      lines.push('END:VCALENDAR');
+      lines.push('END:VEVENT', 'END:VCALENDAR');
       const blob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -256,7 +252,6 @@
       document.body.removeChild(a);
     }
 
-    // AI 편지 윤문
     async function polishWithAI() {
       const fam = getCurrentFamily();
       if (!fam) return;
@@ -269,7 +264,7 @@
             + `네가 이 편지를 열어볼 때쯤이면 "${fam.occasion}"이라는 뜻깊은 날을 맞이하고 있겠구나.\n`
             + `돌아보면 우리 가족과 함께 웃고 보낸 사계절이 내 인생의 가장 큰 선물이었단다. `
             + `특히 "${fam.keywords}"라는 내 진심을 꼭 전하고 싶었어.\n\n`
-            + `${state.autobiography.q3}\n언제 어디서나 건강하고 행복하길 진심으로 응원한다. 사랑한다.`;
+            + `${state.autobiography.q6}\n언제 어디서나 건강하고 행복하길 진심으로 응원한다. 사랑한다.`;
           saveState();
           render();
         }, 400);
@@ -301,14 +296,12 @@
       const root = document.getElementById('app');
       const fam = getCurrentFamily();
 
-      // 법정상속분 계산 (배우자 1.5 : 자녀 1)
       const hasSpouse = state.treasure.hasSpouse;
       const childCnt = Math.max(0, Number(state.treasure.childrenCount) || 0);
       const totalW = (hasSpouse ? 1.5 : 0) + childCnt * 1.0;
       const spousePct = totalW > 0 && hasSpouse ? ((1.5 / totalW) * 100).toFixed(1) : 0;
       const childPct = totalW > 0 && childCnt > 0 ? ((1.0 / totalW) * 100).toFixed(1) : 0;
 
-      // D-Day 날짜 계산
       const bp = (state.roadmap.baseDate || '2026-10-25').split('-').map(Number);
       const baseD = new Date(bp[0], bp[1] - 1, bp[2]);
       const fmtD = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
@@ -329,6 +322,7 @@
             </div>
             <div style="display:flex; gap:6px;">
               ${state.activeModule !== null ? `<button class="btn" onclick="goHome()">← 전체 메뉴</button>` : ''}
+              <button class="btn btn-amber" onclick="openModal('book')">📖 내 인생 책자</button>
               <button class="btn" onclick="openModal('api')">🔑 ${apiKey.trim() ? 'AI 켜짐' : 'AI 키'}</button>
             </div>
           </div>
@@ -339,20 +333,25 @@
       if (state.activeModule === null) {
         html += `
           <div class="card" style="background:linear-gradient(135deg,#34192B,#1E0D18); border-color:#633552;">
-            <span class="badge" style="margin-left:0; margin-bottom:8px;">100% 무료 · 기기 내 안전 저장 · 다자녀 캘린더 연동</span>
-            <h1 style="margin:4px 0 8px; font-size:26px; font-weight:900;">인생안심 길잡이</h1>
-            <p style="margin:0; font-size:14px; color:#DBC3D0;">
-              내 뜻대로 정리하고, 남은 가족이 헤매지 않게.<br/>
-              5개 모듈로 나눠 천천히 채워보세요.
-            </p>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
+              <div>
+                <span class="badge" style="margin-left:0; margin-bottom:8px;">100% 무료 · 자서전 &amp; 웰다잉 엔딩노트</span>
+                <h1 style="margin:4px 0 8px; font-size:26px; font-weight:900;">인생안심 길잡이</h1>
+                <p style="margin:0; font-size:14px; color:#DBC3D0;">
+                  내 뜻대로 정리하고, 남은 가족이 헤매지 않게.<br/>
+                  입력한 모든 기록은 한 권의 <strong>'내 인생 책자(PDF)'</strong>로 엮을 수 있습니다.
+                </p>
+              </div>
+              <button class="btn btn-amber" style="padding:12px 16px; font-size:14px; flex-shrink:0;" onclick="openModal('book')">📖 내 인생 책자 보기</button>
+            </div>
           </div>
 
           <div class="card mod-card" onclick="openModule(1)">
             <div style="display:flex; align-items:center; gap:14px;">
               <div class="num-circle">①</div>
               <div>
-                <div style="font-weight:900; font-size:17px;">마음 갈무리 <span style="font-size:13px; font-weight:500; color:#CFAAC0;">AI 자서전 & 가족에게 남기는 편지</span> <span class="badge">★ 가족 추가 (${state.familyMembers.length}명)</span></div>
-                <div style="font-size:12px; color:#B894A8; margin-top:3px;">배우자·첫째·둘째·손주 무제한 추가 + AI 편지 윤문 + 타임캡슐 캘린더 알림</div>
+                <div style="font-weight:900; font-size:17px;">마음 갈무리 <span style="font-size:13px; font-weight:500; color:#CFAAC0;">6문 6답 자서전 &amp; 가족 편지</span> <span class="badge">★ 대가족 편지함 (${state.familyMembers.length}명)</span></div>
+                <div style="font-size:12px; color:#B894A8; margin-top:3px;">인생 회고·후회·은혜 등 6문 6답 + 다자녀 타임캡슐 편지 + AI 윤문</div>
               </div>
             </div>
             <span style="color:#9E6B88; font-size:20px;">›</span>
@@ -362,7 +361,7 @@
             <div style="display:flex; align-items:center; gap:14px;">
               <div class="num-circle">②</div>
               <div>
-                <div style="font-weight:900; font-size:17px;">존엄한 결정 <span style="font-size:13px; font-weight:500; color:#CFAAC0;">사전연명의료 & 돌봄 의향서</span></div>
+                <div style="font-weight:900; font-size:17px;">존엄한 결정 <span style="font-size:13px; font-weight:500; color:#CFAAC0;">사전연명의료 &amp; 돌봄 의향서</span></div>
                 <div style="font-size:12px; color:#B894A8; margin-top:3px;">연명의료 의향 정리 및 공식 법적 등록기관(건보공단·보건소) 안내</div>
               </div>
             </div>
@@ -373,7 +372,7 @@
             <div style="display:flex; align-items:center; gap:14px;">
               <div class="num-circle">③</div>
               <div>
-                <div style="font-weight:900; font-size:17px;">마지막 소풍 <span style="font-size:13px; font-weight:500; color:#CFAAC0;">내 뜻대로 디자인하는 장례 & 안치</span></div>
+                <div style="font-weight:900; font-size:17px;">마지막 소풍 <span style="font-size:13px; font-weight:500; color:#CFAAC0;">내 뜻대로 디자인하는 장례 &amp; 안치</span></div>
                 <div style="font-size:12px; color:#B894A8; margin-top:3px;">장례 방식, 수목장/봉안당, 영정사진 및 조문객에게 남기는 당부</div>
               </div>
             </div>
@@ -384,7 +383,7 @@
             <div style="display:flex; align-items:center; gap:14px;">
               <div class="num-circle">④</div>
               <div>
-                <div style="font-weight:900; font-size:17px;">보물지도 & 유언 가이드 <span class="badge">★ 자산 추가 (${state.treasure.assets.length}건)</span></div>
+                <div style="font-weight:900; font-size:17px;">보물지도 &amp; 유언 가이드 <span class="badge">★ 자산 추가 (${state.treasure.assets.length}건)</span></div>
                 <div style="font-size:12px; color:#B894A8; margin-top:3px;">통장·보험·부동산 위치 무제한 추가 + 법정상속분(1.5:1)·유언·증여세 고정 안내</div>
               </div>
             </div>
@@ -404,26 +403,38 @@
         `;
       }
 
-      // 모듈 1: 마음 갈무리 (다자녀/가족 추가 + 구글 캘린더)
+      // 모듈 1: 마음 갈무리 (6문 6답 확장 자서전 + 다자녀 가족 추가)
       if (state.activeModule === 1) {
         html += `
           <div class="card">
             <span class="badge" style="margin-left:0;">모듈 ① 마음 갈무리</span>
-            <h2 style="margin:6px 0;">AI 자서전 & 가족 구성원별 맞춤 타임캡슐 편지</h2>
-            <p style="font-size:12px; color:#CDB0C0; margin:0;">배우자, 첫째, 둘째, 손주까지 가족을 추가해 각각 다른 편지와 개봉 날짜를 설정하세요.</p>
+            <h2 style="margin:6px 0;">📖 1. 내 인생을 돌아보는 6문 6답 자서전</h2>
+            <p style="font-size:12px; color:#CDB0C0; margin:0;">지나온 날의 봄날, 솔직한 후회와 깨달음, 그리고 가족에게 전하는 진심을 수필처럼 기록하세요.</p>
 
-            <label>Q1. 내 인생에서 가장 빛나고 행복했던 순간은?</label>
+            <label>Q1. 내 인생에서 가장 빛나고 행복했던 ‘봄날’은 언제였나요?</label>
             <textarea rows="2" oninput="updateAuto('q1', this.value)">${state.autobiography.q1}</textarea>
 
-            <label>Q2. 내가 떠난 뒤 가족들이 나를 어떻게 기억해 주길 바라나요?</label>
+            <label>Q2. 살아오면서 가장 크게 후회했던 순간과, 그 속에서 얻은 가르침은?</label>
+            <textarea rows="2" oninput="updateAuto('q2', this.value)">${state.autobiography.q2}</textarea>
+
+            <label>Q3. 평생 가장 고마웠던 은인이나, 잊지 못할 귀한 인연은 누구인가요?</label>
             <textarea rows="2" oninput="updateAuto('q3', this.value)">${state.autobiography.q3}</textarea>
+
+            <label>Q4. 세상을 떠날 때 자녀들에게 남겨주고 싶은 내 삶의 철학이나 신조는?</label>
+            <textarea rows="2" oninput="updateAuto('q4', this.value)">${state.autobiography.q4}</textarea>
+
+            <label>Q5. 삶을 돌아보며 나 자신과 가족에게 해주고 싶은 진심 어린 말은?</label>
+            <textarea rows="2" oninput="updateAuto('q5', this.value)">${state.autobiography.q5}</textarea>
+
+            <label>Q6. 내가 떠난 뒤 가족들이 나를 어떤 모습으로 떠올려 주길 바라나요?</label>
+            <textarea rows="2" oninput="updateAuto('q6', this.value)">${state.autobiography.q6}</textarea>
           </div>
 
           <div class="card" style="border:2px solid #8C4A6E;">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
               <div>
-                <span class="badge" style="margin-left:0;">NEW 다자녀 · 대가족 지원</span>
-                <h3 style="margin:4px 0 0;">💌 가족 구성원별 1:1 편지함 (${state.familyMembers.length}명)</h3>
+                <span class="badge" style="margin-left:0;">NEW 대가족 편지함</span>
+                <h3 style="margin:4px 0 0;">💌 2. 가족 구성원별 1:1 편지함 (${state.familyMembers.length}명)</h3>
               </div>
               <button class="btn btn-primary" onclick="openModal('addFamily')">➕ 가족 구성원 추가하기</button>
             </div>
@@ -528,7 +539,7 @@
         `;
       }
 
-      // 모듈 4: ★ 보물지도 무제한 추가/삭제 기능 + 유언/증여 가이드
+      // 모듈 4: 보물지도 무제한 추가
       if (state.activeModule === 4) {
         html += `
           <div class="card" style="border:2px solid #8C4A6E;">
@@ -656,7 +667,7 @@
 
       html += `</div>`;
 
-      // 모달 1: 새 가족 구성원 추가
+      // 모달 1: 새 가족 추가
       if (activeModal === 'addFamily') {
         html += `
           <div class="modal-bg" onclick="closeModal()">
@@ -686,28 +697,25 @@
         `;
       }
 
-      // 모달 2: ★ 새 자산 항목 추가 (보물지도 멀티 추가 모달)
+      // 모달 2: 새 자산 추가
       if (activeModal === 'addAsset') {
         html += `
           <div class="modal-bg" onclick="closeModal()">
             <div class="modal-box" onclick="event.stopPropagation()">
               <h3 style="margin-top:0;">➕ 보물지도 새 자산 항목 추가</h3>
-              <p style="font-size:12px; color:#CDB0C0; margin-top:0;">
-                계좌번호나 비밀번호는 적지 마시고, 가족들이 찾을 수 있게 <strong>기관명과 보관 위치</strong>만 적어주세요.
-              </p>
               <label>자산 종류 선택</label>
               <select id="na-cat">
                 <option value="🏦 예·적금/통장">🏦 은행 예·적금 / 통장</option>
                 <option value="🛡️ 보험 증권">🛡️ 생명·실손·암보험 증권</option>
-                <option value="🏠 부동산/문서">🏠 부동산 등기권리증 · 임대차계약서</option>
-                <option value="📈 연금/주식/펀드">📈 개인연금 · 퇴직연금 · 증권사 계좌</option>
-                <option value="📱 디지털 계정/사진">📱 스마트폰 사진첩 · 클라우드 · 상조 가입</option>
-                <option value="📦 기타 귀중품/금고">📦 금고 · 귀금속 · 대여금 증서 등 기타</option>
+                <option value="🏠 부동산/문서">🏠 부동산 등기권리증 · 계약서</option>
+                <option value="📈 연금/주식">📈 개인연금 · 증권사 계좌</option>
+                <option value="📱 디지털 계정">📱 스마트폰 사진첩 · 상조</option>
+                <option value="📦 기타 금고">📦 금고 · 귀금속 등 기타</option>
               </select>
               <label>금융기관명 또는 자산 명칭</label>
-              <input id="na-inst" type="text" placeholder="예: 신한은행 적금, 현대해상 운전자보험, 상조 가입증서" />
-              <label>서류·통장 보관 위치 메모 (계좌번호 미기재)</label>
-              <input id="na-memo" type="text" placeholder="예: 안방 화장대 왼쪽 서랍 빨간색 파우치 안" />
+              <input id="na-inst" type="text" placeholder="예: 신한은행 적금, 현대해상 보험" />
+              <label>보관 위치 메모 (계좌번호 입력 금지)</label>
+              <input id="na-memo" type="text" placeholder="예: 안방 서랍장 파란 파일철" />
               <div class="grid-2" style="margin-top:16px;">
                 <button class="btn" onclick="closeModal()">취소</button>
                 <button class="btn btn-primary" onclick="confirmAddAsset()">자산 추가하기</button>
@@ -747,7 +755,7 @@
           <div class="modal-bg" onclick="closeModal()">
             <div class="modal-box" onclick="event.stopPropagation()">
               <h3 style="margin-top:0;">🔑 무료 Gemini AI 키 설정</h3>
-              <p style="font-size:12px; color:#CDB0C0;">키를 넣지 않아도 모든 모듈과 기본 윤문이 100% 작동하며, 키를 입력하면 실시간 AI 윤문이 활성화됩니다.</p>
+              <p style="font-size:12px; color:#CDB0C0;">키를 입력하면 AI가 편지를 더욱 따뜻하게 다듬어 줍니다.</p>
               <input id="api-input" type="password" placeholder="AIzaSy... 키 입력" value="${apiKey}" />
               <div class="grid-2" style="margin-top:16px;">
                 <button class="btn" onclick="closeModal()">닫기</button>
@@ -758,10 +766,80 @@
         `;
       }
 
+      // ★ 모듈 5: 내 인생 책자 (PDF/프린트 출력용 모달)
+      if (activeModal === 'book') {
+        let familyLettersHtml = state.familyMembers.map(f => `
+          <div style="margin-bottom:16px; background:#F8F0F4; padding:14px; border-radius:12px; border-left:4px solid #8C4A6E;">
+            <strong style="color:#632B4A; font-size:15px;">To. ${f.name} (${f.relation})</strong>
+            <div style="font-size:12px; color:#8C627A; margin-bottom:6px;">개봉 시점: ${f.occasion} (${f.targetDate})</div>
+            <div style="font-size:13.5px; line-height:1.8; white-space:pre-wrap;">${f.letter}</div>
+          </div>
+        `).join('');
+
+        let assetsHtml = state.treasure.assets.map(a => `
+          <tr>
+            <td style="padding:8px; border-bottom:1px solid #E8D0DF; font-weight:700;">${a.category}</td>
+            <td style="padding:8px; border-bottom:1px solid #E8D0DF;">${a.inst}</td>
+            <td style="padding:8px; border-bottom:1px solid #E8D0DF;">${a.memo}</td>
+          </tr>
+        `).join('');
+
+        html += `
+          <div class="modal-bg" onclick="closeModal()">
+            <div class="book-modal" onclick="event.stopPropagation()" id="book-print-area">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <span style="font-size:12px; font-weight:700; color:#8C627A;">📖 인생안심 자서전 & 엔딩노트 기록</span>
+                <button class="btn" style="padding:4px 10px;" onclick="closeModal()">✕ 닫기</button>
+              </div>
+
+              <div class="book-title">나의 인생 기록과 유산</div>
+              <div class="book-sub">인생안심 길잡이 통합 출력본 · 작성일: ${new Date().toISOString().slice(0,10)}</div>
+
+              <div class="book-chapter">제1장. 내 인생의 6문 6답 자서전</div>
+              <div class="book-text">
+                <b>Q1. 가장 빛났던 봄날:</b><br/>${state.autobiography.q1}<br/><br/>
+                <b>Q2. 가장 큰 후회와 깨달음:</b><br/>${state.autobiography.q2}<br/><br/>
+                <b>Q3. 평생 고마웠던 은인:</b><br/>${state.autobiography.q3}<br/><br/>
+                <b>Q4. 자녀들에게 남기는 삶의 철학:</b><br/>${state.autobiography.q4}<br/><br/>
+                <b>Q5. 가족에게 전하는 진심:</b><br/>${state.autobiography.q5}<br/><br/>
+                <b>Q6. 기억되길 바라는 모습:</b><br/>${state.autobiography.q6}
+              </div>
+
+              <div class="book-chapter">제2장. 가족들에게 남기는 타임캡슐 편지</div>
+              <div>${familyLettersHtml}</div>
+
+              <div class="book-chapter">제3장. 존엄한 결정 및 장례 디자인</div>
+              <div class="book-text">
+                • 연명의료 의향: ${state.medical.cpr ? '시행 희망' : '연명치료 거부'} (호스피스 이용 희망)<br/>
+                • 돌봄 당부: ${state.medical.careNote}<br/>
+                • 장례 및 안치 방식: ${state.funeral.method} (${state.funeral.scale})<br/>
+                • 조문객 당부: ${state.funeral.message}
+              </div>
+
+              <div class="book-chapter">제4장. 자산 보물지도 요약</div>
+              <table style="width:100%; border-collapse:collapse; font-size:13px; margin-top:8px;">
+                <thead>
+                  <tr style="background:#E8D0DF; color:#632B4A; text-align:left;">
+                    <th style="padding:8px;">자산 종류</th>
+                    <th style="padding:8px;">기관명</th>
+                    <th style="padding:8px;">보관 위치 메모</th>
+                  </tr>
+                </thead>
+                <tbody>${assetsHtml}</tbody>
+              </table>
+
+              <div style="margin-top:24px; display:flex; gap:10px;">
+                <button class="btn btn-primary" style="flex:1; padding:14px; font-size:15px;" onclick="window.print()">🖨️ PDF로 저장하기 / 인쇄하기</button>
+                <button class="btn" style="flex:1; padding:14px; font-size:15px;" onclick="closeModal()">닫기</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
       root.innerHTML = html;
     }
 
-    // 이벤트 핸들러
     window.goHome = () => { state.activeModule = null; saveState(); render(); };
     window.openModule = (n) => { state.activeModule = n; saveState(); render(); window.scrollTo(0,0); };
     window.openModal = (m) => { activeModal = m; render(); };
@@ -771,7 +849,6 @@
     window.updateFam = (k, v) => { const f = getCurrentFamily(); if (f) { f[k] = v; saveState(); } };
     window.toggleMed = (k) => { state.medical[k] = !state.medical[k]; saveState(); render(); };
 
-    // ★ 보물지도 자산 추가/수정/삭제 핸들러
     window.updateAsset = (idx, key, val) => {
       if (state.treasure.assets[idx]) {
         state.treasure.assets[idx][key] = val;
@@ -786,10 +863,7 @@
       }
     };
     window.deleteAsset = (idx) => {
-      if (state.treasure.assets.length <= 1) {
-        alert('최소 1개의 자산 항목은 남아있어야 합니다.');
-        return;
-      }
+      if (state.treasure.assets.length <= 1) { alert('최소 1개의 자산은 남아있어야 합니다.'); return; }
       state.treasure.assets.splice(idx, 1);
       saveState();
       render();
@@ -797,26 +871,16 @@
     window.confirmAddAsset = () => {
       const cat = document.getElementById('na-cat')?.value || '🏦 예·적금/통장';
       const inst = document.getElementById('na-inst')?.value?.trim();
-      const memo = document.getElementById('na-memo')?.value?.trim() || '보관 위치를 입력해 주세요';
-      if (!inst) {
-        alert('금융기관명이나 자산 명칭을 입력해 주세요.');
-        return;
-      }
-      state.treasure.assets.push({
-        id: 'ast-' + Date.now(),
-        category: cat,
-        inst: inst,
-        memo: memo,
-        checked: true
-      });
+      const memo = document.getElementById('na-memo')?.value?.trim() || '보관 위치';
+      if (!inst) { alert('금융기관명을 입력해 주세요.'); return; }
+      state.treasure.assets.push({ id: 'ast-' + Date.now(), category: cat, inst, memo, checked: true });
       saveState();
       closeModal();
     };
 
     window.saveKeyFromModal = () => {
-      const val = document.getElementById('api-input')?.value || '';
-      apiKey = val;
-      localStorage.setItem(API_KEY_STORAGE, val);
+      apiKey = document.getElementById('api-input')?.value || '';
+      localStorage.setItem(API_KEY_STORAGE, apiKey);
       closeModal();
     };
     window.confirmAddFamily = () => {
@@ -824,14 +888,14 @@
       const rel = document.getElementById('nf-rel')?.value || '자녀';
       const occ = document.getElementById('nf-occ')?.value || '특별한 날';
       const dt = document.getElementById('nf-date')?.value || '2035-05-01';
-      if (!name) { alert('가족 호칭이나 이름을 입력해 주세요.'); return; }
+      if (!name) { alert('가족 이름을 입력해 주세요.'); return; }
       const icons = { '배우자':'💑', '첫째 자녀':'👧', '둘째 자녀':'👦', '셋째 자녀':'🧒', '손주':'👶', '부모님/형제':'🌷' };
       const id = 'fam-' + Date.now();
       state.familyMembers.push({
         id, name, relation: rel, icon: icons[rel] || '💌',
         occasion: occ, targetDate: dt, email: '',
-        keywords: '사랑하고 고마운 우리 가족, 늘 건강하고 행복하길',
-        letter: `사랑하는 ${name}에게,\n언제나 내 삶의 큰 기쁨이 되어주어 고마웠단다. 이 편지를 열어보는 날에도 네 얼굴에 따뜻한 미소가 가득하길 기도할게.`
+        keywords: '고마운 우리 가족, 늘 행복하길',
+        letter: `사랑하는 ${name}에게,\n내 삶의 큰 기쁨이 되어주어 고마웠단다. 이 편지를 열어보는 날에도 네 미소가 가득하길 기도할게.`
       });
       state.selectedFamilyId = id;
       saveState();

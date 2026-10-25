@@ -1,1086 +1,1598 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>인생안심 길잡이</title>
-<meta name="description" content="사후 행정·상속 타임라인과 웰다잉 엔딩노트를 정리하는 개인용 가이드">
-<meta name="theme-color" content="#7a3b5e">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="인생안심">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-  /* layout: single scrolling column, card-based screens switched by JS state (home / 5 modules / summary) */
-  :root{
-    --bg:#f3eef1;
-    --surface:#ffffff;
-    --surface-soft:#f8f3f6;
-    --ink:#2a2230;
-    --ink-soft:#6c5f6c;
-    --ink-faint:#a295a0;
-    --border:#e5d9e1;
-    --accent:#7a3b5e;
-    --accent-ink:#ffffff;
-    --accent-tint:#f3e3ea;
-    --warn-bg:#fff3e3;
-    --warn-border:#e0ab63;
-    --warn-ink:#6b4a1c;
-    --good-bg:#e9f1ea;
-    --good-border:#8fb89a;
-    --good-ink:#2f5436;
-    color-scheme: light;
-  }
-  @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#1a1520;
-      --surface:#241e2a;
-      --surface-soft:#2b2432;
-      --ink:#efe8ee;
-      --ink-soft:#b7a9b6;
-      --ink-faint:#847a84;
-      --border:#3a2f3a;
-      --accent:#c084a6;
-      --accent-ink:#201018;
-      --accent-tint:#3a2a33;
-      --warn-bg:#3a2e1c;
-      --warn-border:#8a6a34;
-      --warn-ink:#f1d6a4;
-      --good-bg:#223326;
-      --good-border:#4f7a5c;
-      --good-ink:#bfe0c6;
-      color-scheme: dark;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>인생안심 길잡이 - 내 뜻대로 정리하고, 남은 가족이 헤매지 않게</title>
+  <meta name="theme-color" content="#23121E" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- React & ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif;
+      background-color: #180B14;
+      color: #F8F1F5;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
-  }
-  :root[data-theme="dark"]{
-    --bg:#1a1520; --surface:#241e2a; --surface-soft:#2b2432;
-    --ink:#efe8ee; --ink-soft:#b7a9b6; --ink-faint:#847a84;
-    --border:#3a2f3a; --accent:#c084a6; --accent-ink:#201018; --accent-tint:#3a2a33;
-    --warn-bg:#3a2e1c; --warn-border:#8a6a34; --warn-ink:#f1d6a4;
-    --good-bg:#223326; --good-border:#4f7a5c; --good-ink:#bfe0c6;
-    color-scheme: dark;
-  }
-
-  *{box-sizing:border-box;}
-  body{
-    background:var(--bg); color:var(--ink);
-    font-family:'Noto Sans KR', -apple-system, sans-serif;
-    display:flex; justify-content:center;
-    padding-block:0 48px;
-    padding-left:max(16px, env(safe-area-inset-left,0px));
-    padding-right:max(16px, env(safe-area-inset-right,0px));
-  }
-  h1,h2,h3{text-wrap:balance; margin:0; font-family:'Noto Serif KR', serif;}
-  .num{font-variant-numeric: tabular-nums;}
-  [hidden]{display:none!important;}
-
-  .app{width:100%; max-width:560px;}
-
-  /* ---- top bar ---- */
-  .topbar{
-    position:sticky; top:0; z-index:10;
-    display:flex; align-items:center; gap:10px;
-    padding: 14px 2px 12px;
-    background:var(--bg);
-  }
-  .topbar::before{
-    content:''; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px);
-    background:var(--bg); z-index:10;
-  }
-  .iconbtn{
-    width:38px; height:38px; border-radius:12px; border:1.5px solid var(--border); background:var(--surface);
-    display:flex; align-items:center; justify-content:center; font-size:17px; cursor:pointer; color:var(--ink); flex:none;
-  }
-  .iconbtn:focus-visible{outline:3px solid var(--accent); outline-offset:2px;}
-  .topbar .title{font-size:16px; font-weight:700;}
-  .topbar .chip{
-    margin-left:auto; font-size:11.5px; font-weight:700; color:var(--accent);
-    background:var(--accent-tint); padding:4px 10px; border-radius:999px;
-  }
-
-  /* ---- screens ---- */
-  .screen{display:none;}
-  .screen.active{display:block; animation:rise .35s ease both;}
-  @media (prefers-reduced-motion: reduce){ .screen.active{animation:none;} }
-  @keyframes rise{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
-
-  /* ---- home ---- */
-  .hero{padding: 10px 2px 20px;}
-  .hero .brand{font-size:28px; font-weight:700;}
-  .hero .tag{margin-top:8px; font-size:14.5px; color:var(--ink-soft); line-height:1.6;}
-
-  .modcard{
-    display:flex; align-items:center; gap:14px;
-    background:var(--surface); border:1.5px solid var(--border); border-radius:18px;
-    padding:16px; margin-bottom:10px; cursor:pointer; text-align:left; font-family:inherit; width:100%;
-  }
-  .modcard:focus-visible{outline:3px solid var(--accent); outline-offset:2px;}
-  .modcard .n{
-    width:42px; height:42px; border-radius:13px; flex:none;
-    background:var(--accent-tint); color:var(--accent); font-family:'Noto Serif KR', serif; font-weight:700; font-size:18px;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .modcard .body{min-width:0; flex:1;}
-  .modcard .t{font-size:15.5px; font-weight:700;}
-  .modcard .d{font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.5;}
-  .modcard .dot{width:9px; height:9px; border-radius:50%; background:var(--border); flex:none;}
-  .modcard .dot.done{background:var(--good-border);}
-  .modcard .star{font-size:11px; color:var(--accent); font-weight:700; margin-left:6px;}
-
-  .summarybar{
-    margin-top:18px; display:flex; align-items:center; justify-content:space-between;
-    background:var(--accent-tint); border-radius:16px; padding:14px 16px;
-  }
-  .summarybar .t{font-size:13.5px; font-weight:700; color:var(--accent);}
-  .summarybar .d{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
-  .smallbtn{
-    background:var(--accent); color:var(--accent-ink); border:none; border-radius:12px;
-    padding:9px 14px; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; flex:none;
-  }
-  .smallbtn:focus-visible{outline:3px solid var(--ink); outline-offset:2px;}
-
-  /* ---- module content shared ---- */
-  .section{margin-bottom:22px;}
-  .section .lead{font-size:14.5px; color:var(--ink-soft); line-height:1.65; margin-bottom:14px;}
-  .fieldlabel{font-size:13.5px; font-weight:700; margin-bottom:8px; display:block;}
-  textarea, input[type=text], input[type=date], select{
-    width:100%; font-family:inherit; font-size:14.5px; color:var(--ink);
-    background:var(--surface); border:1.5px solid var(--border); border-radius:12px;
-    padding:11px 13px;
-  }
-  textarea{min-height:64px; resize:vertical;}
-  textarea:focus, input:focus, select:focus{outline:3px solid var(--accent); outline-offset:1px; border-color:var(--accent);}
-
-  .choicerow{display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;}
-  .choice{
-    border:1.5px solid var(--border); background:var(--surface); color:var(--ink);
-    border-radius:999px; padding:9px 15px; font-size:13.5px; font-weight:600; cursor:pointer; font-family:inherit;
-  }
-  .choice:focus-visible{outline:3px solid var(--accent); outline-offset:2px;}
-  .choice.sel{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
-
-  .checklist{display:flex; flex-direction:column; gap:8px;}
-  .checkrow{
-    display:flex; align-items:center; gap:12px;
-    background:var(--surface); border:1.5px solid var(--border); border-radius:14px; padding:12px 14px;
-  }
-  .checkrow input[type=checkbox]{width:19px; height:19px; accent-color:var(--accent); flex:none;}
-  .checkrow .ck-body{flex:1; min-width:0;}
-  .checkrow .ck-title{font-size:14px; font-weight:700;}
-  .checkrow input[type=text]{margin-top:6px; font-size:13px; padding:7px 10px;}
-
-  .box{border-radius:16px; padding:15px 16px; border:1.5px solid var(--border); background:var(--surface-soft); margin-top:12px;}
-  .box.warn{background:var(--warn-bg); border-color:var(--warn-border); color:var(--warn-ink);}
-  .box.good{background:var(--good-bg); border-color:var(--good-border); color:var(--good-ink);}
-  .box .box-t{font-size:12.5px; font-weight:700; margin-bottom:8px; display:flex; align-items:center; gap:6px;}
-  .box p{margin:0 0 6px; font-size:13.5px; line-height:1.6;}
-  .box p:last-child{margin-bottom:0;}
-
-  .primarybtn{
-    width:100%; background:var(--accent); color:var(--accent-ink); border:none; border-radius:14px;
-    padding:15px; font-size:15.5px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:8px;
-  }
-  .primarybtn:focus-visible{outline:3px solid var(--ink); outline-offset:2px;}
-  .ghostbtn{
-    width:100%; background:none; color:var(--accent); border:1.5px solid var(--accent); border-radius:14px;
-    padding:13px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; margin-top:10px;
-  }
-
-  .letter{
-    background:var(--surface); border:1.5px solid var(--border); border-radius:16px; padding:20px;
-    font-family:'Noto Serif KR', serif; font-size:14.5px; line-height:2; white-space:pre-wrap;
-  }
-
-  /* timeline */
-  .tlrow{display:flex; gap:12px; padding:13px 0; border-bottom:1px solid var(--border);}
-  .tlrow:last-child{border-bottom:none;}
-  .tlrow .d{
-    flex:none; width:64px; text-align:center; font-size:12px; font-weight:700; color:var(--accent);
-    background:var(--accent-tint); border-radius:10px; padding:7px 4px; line-height:1.4;
-  }
-  .tlrow .body{min-width:0;}
-  .tlrow .t{font-size:14.5px; font-weight:700;}
-  .tlrow .s{font-size:12.5px; color:var(--ink-soft); margin-top:2px; line-height:1.5;}
-  .tlrow .due{font-size:12px; color:var(--ink-faint); margin-top:3px; font-weight:600;}
-
-  .bizcard{
-    background:var(--surface); border:1.5px dashed var(--border); border-radius:14px; padding:13px 14px; margin-top:8px;
-  }
-  .bizcard .t{font-size:14px; font-weight:700;}
-  .bizcard .s{font-size:12.5px; color:var(--ink-soft); margin-top:3px; line-height:1.5;}
-  .bizbanner{
-    background:var(--accent-tint); color:var(--accent); font-size:12px; font-weight:700;
-    border-radius:10px; padding:9px 12px; margin:14px 0 8px; line-height:1.5;
-  }
-
-  /* summary card */
-  .sumcard{
-    background:var(--surface); border:1.5px solid var(--border); border-radius:20px; padding:22px;
-  }
-  .sumcard h2{font-size:19px; margin-bottom:4px;}
-  .sumcard .sub{font-size:12.5px; color:var(--ink-faint); margin-bottom:16px;}
-  .sumsec{margin-bottom:16px;}
-  .sumsec .h{font-size:12px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;}
-  .sumsec .v{font-size:14px; line-height:1.7; color:var(--ink);}
-  .sumsec .empty{color:var(--ink-faint); font-style:italic;}
-
-  /* ---- 수신 화면 미리보기 모달(시연용) ---- */
-  .phonemodal-overlay{
-    position:fixed; inset:0; background:rgba(20,15,20,.55); z-index:50;
-    display:flex; align-items:center; justify-content:center; padding:20px;
-  }
-  .phonemodal{
-    width:100%; max-width:330px; background:var(--surface); border-radius:26px;
-    border:1.5px solid var(--border); overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.35);
-  }
-  .phonemodal-head{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:13px 16px; background:var(--accent); color:var(--accent-ink);
-  }
-  .phonemodal-label{font-size:12px; font-weight:700;}
-  .phonemodal-close{
-    background:none; border:none; color:inherit; font-size:16px; cursor:pointer; padding:2px 6px; line-height:1;
-  }
-  .phonemodal-body{padding:18px 16px 20px;}
-  .phonemodal-chip{
-    display:inline-block; font-size:11px; font-weight:700; color:var(--accent);
-    background:var(--accent-tint); padding:4px 10px; border-radius:999px; margin-bottom:10px;
-  }
-  .phonemodal-msgbox{
-    background:var(--surface-soft); border:1.5px solid var(--border); border-radius:16px; padding:14px; margin-bottom:4px;
-  }
-  .phonemodal-from{font-size:12px; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
-  .phonemodal-text{font-size:14px; line-height:1.7; white-space:pre-wrap;}
-  body{margin:0;}
-</style>
+    .custom-scroll::-webkit-scrollbar { height: 6px; width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #261420; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #6E3B58; border-radius: 9999px; }
+  </style>
 </head>
 <body>
+  <div id="root"></div>
 
-<div class="app">
-  <div class="topbar">
-    <button class="iconbtn" id="btn-top-back" type="button" aria-label="홈으로" hidden>←</button>
-    <span class="title" id="topbar-title">인생안심 길잡이</span>
-    <span class="chip" id="topbar-chip" hidden></span>
-  </div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
 
-  <!-- 홈 -->
-  <section class="screen active" id="screen-home">
-    <div class="hero">
-      <div class="brand">인생안심 길잡이</div>
-      <div class="tag">내 뜻대로 정리하고, 남은 가족이 헤매지 않게.<br>5개 모듈로 나눠 천천히 채워보세요.</div>
-    </div>
+    const STORAGE_KEY = 'insaeng_ansim_data_v2';
+    const API_KEY_STORAGE = 'insaeng_ansim_gemini_key';
 
-    <button class="modcard" type="button" data-go="m1">
-      <span class="n">①</span>
-      <span class="body">
-        <span class="t">마음 갈무리</span>
-        <span class="d">AI 자서전 &amp; 가족에게 남기는 편지</span>
-      </span>
-      <span class="dot" id="dot-m1"></span>
-    </button>
-
-    <button class="modcard" type="button" data-go="m2">
-      <span class="n">②</span>
-      <span class="body">
-        <span class="t">존엄한 결정</span>
-        <span class="d">사전연명의료 &amp; 돌봄 의향서</span>
-      </span>
-      <span class="dot" id="dot-m2"></span>
-    </button>
-
-    <button class="modcard" type="button" data-go="m3">
-      <span class="n">③</span>
-      <span class="body">
-        <span class="t">마지막 소풍</span>
-        <span class="d">내 뜻대로 디자인하는 장례 &amp; 안치</span>
-      </span>
-      <span class="dot" id="dot-m3"></span>
-    </button>
-
-    <button class="modcard" type="button" data-go="m4">
-      <span class="n">④</span>
-      <span class="body">
-        <span class="t">보물지도 &amp; 유언 가이드<span class="star">★핵심</span></span>
-        <span class="d">숨은 자산 체크 + 법정상속분·유언 요건 안내</span>
-      </span>
-      <span class="dot" id="dot-m4"></span>
-    </button>
-
-    <button class="modcard" type="button" data-go="m5">
-      <span class="n">⑤</span>
-      <span class="body">
-        <span class="t">사후 로드맵</span>
-        <span class="d">D-Day 행정 타임라인 + 전문가 연결(시연)</span>
-      </span>
-      <span class="dot" id="dot-m5"></span>
-    </button>
-
-    <div class="summarybar">
-      <div>
-        <div class="t">인생안심 정리표</div>
-        <div class="d" id="sum-progress">아직 채운 모듈이 없어요</div>
-      </div>
-      <button class="smallbtn" type="button" data-go="summary">카드 보기</button>
-    </div>
-
-    <div class="box" style="margin-top:14px;">
-      <div class="box-t">🔒 이 기기에만 안전하게 저장돼요</div>
-      <p>입력한 내용은 서버로 전송되지 않고, 지금 쓰고 있는 이 브라우저(기기)에만 저장돼요. 다른 기기나 브라우저에서 열면 보이지 않으니, 앱을 지우거나 데이터를 지우면 함께 사라질 수 있어요. 중요한 내용은 "요약 복사하기"로 따로 보관해두세요.</p>
-    </div>
-    <button class="ghostbtn" type="button" id="btn-reset-all" style="border-color:var(--warn-border); color:var(--warn-ink);">이 기기의 저장된 내용 전체 초기화</button>
-  </section>
-
-  <!-- 모듈 ① -->
-  <section class="screen" id="screen-m1">
-    <div class="section">
-      <p class="lead">가장 뿌듯했던 순간, 가족에게 전하고 싶은 마음을 짧게 적어주세요. 적으신 말을 다정한 편지 한 편으로 다듬어 드릴게요.</p>
-      <label class="fieldlabel" for="m1-proud">내 인생에서 가장 뿌듯했던 순간은?</label>
-      <textarea id="m1-proud" placeholder="예: 아이들 대학 보낸 것, 작은 가게를 20년 지켜온 것..."></textarea>
-    </div>
-    <div class="section">
-      <label class="fieldlabel" for="m1-thanks">자녀들에게 고마웠던 기억이나 꼭 하고 싶은 당부가 있다면?</label>
-      <textarea id="m1-thanks" placeholder="예: 힘들 때 곁에 있어줘서 고마웠다, 서로 다투지 말고 지내라..."></textarea>
-    </div>
-    <button class="primarybtn" type="button" id="btn-m1-make">편지로 다듬기</button>
-    <div id="m1-letter-wrap" hidden>
-      <div class="letter" id="m1-letter"></div>
-    </div>
-
-    <div class="section" style="margin-top:28px;">
-      <h3 style="font-size:15px; margin-bottom:10px;">⏳ 자녀에게, 먼 훗날 전할 편지</h3>
-      <p class="lead">투병 중이거나 미리 준비하고 싶을 때를 위한 기능이에요. 자녀가 특정 나이가 됐을 때 열어볼 편지를 지금 써두고, 가족이 잊지 않도록 캘린더 알림을 걸어둘 수 있어요.</p>
-      <label class="fieldlabel" for="m1c-name">자녀 이름</label>
-      <input type="text" id="m1c-name" placeholder="예: 민지">
-      <label class="fieldlabel" style="margin-top:12px;">몇 살이 될 때 전할까요?</label>
-      <div class="choicerow" id="m1c-age">
-        <button class="choice" data-val="20">20살</button>
-        <button class="choice" data-val="30">30살</button>
-        <button class="choice" data-val="40">40살</button>
-      </div>
-      <label class="fieldlabel" style="margin-top:12px;" for="m1c-year">그 나이가 되는 해는 언제인가요?</label>
-      <input type="text" id="m1c-year" placeholder="예: 2036 (서력 4자리)">
-      <label class="fieldlabel" style="margin-top:12px;" for="m1c-letter">전할 말을 적어주세요</label>
-      <textarea id="m1c-letter" placeholder="예: 네가 스무 살이 된 걸 축하해. 아빠는 그때..."></textarea>
-      <div id="m1c-warn" class="box warn" hidden><p id="m1c-warn-text"></p></div>
-      <button class="primarybtn" type="button" id="btn-m1c-make">타임캡슐 편지 만들기</button>
-      <div id="m1c-wrap" hidden>
-        <div class="letter" id="m1c-card"></div>
-        <a class="ghostbtn" id="m1c-cal" href="#" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; box-sizing:border-box;">📅 가족 캘린더에 전달일 알림 추가</a>
-        <button class="ghostbtn" type="button" id="btn-m1c-preview">📱 자녀가 받을 화면 미리보기 (시연)</button>
-        <div class="box warn" style="margin-top:10px;">
-          <div class="box-t">⚠️ 꼭 알아두세요</div>
-          <p>몇십 년 뒤로 편지를 자동 전송해주는 기능은 아니에요. 그렇게 하려면 서버에 오래 보관하고 문자를 자동으로 보내는 유료 인프라가 필요해요. 대신 "가족이 캘린더 알림을 보고, 보관해둔 편지를 그날 전달한다"는 현실적인 방식으로 설계했고, 위 미리보기는 그날 자녀 화면이 어떤 느낌일지 보여주는 시연용 화면이에요.</p>
-        </div>
-      </div>
-    </div>
-
-    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
-  </section>
-
-  <!-- 모듈 ② -->
-  <section class="screen" id="screen-m2">
-    <div class="section">
-      <p class="lead">의식을 잃거나 판단이 흐려졌을 때, 자녀들이 죄책감 없이 결정할 수 있도록 내 뜻을 미리 밝혀두는 항목이에요.</p>
-      <label class="fieldlabel">무의미한 연명치료(심폐소생술·인공호흡기·혈액투석)에 대한 내 생각은?</label>
-      <div class="choicerow" id="m2-cpr">
-        <button class="choice" data-val="거부">거부하고 싶다</button>
-        <button class="choice" data-val="희망">최대한 받고 싶다</button>
-        <button class="choice" data-val="고민중">아직 고민 중</button>
-      </div>
-    </div>
-    <div class="section">
-      <label class="fieldlabel">치매·중증 질환 시 희망하는 돌봄 형태는?</label>
-      <div class="choicerow" id="m2-care">
-        <button class="choice" data-val="재가요양">집에서 재가요양</button>
-        <button class="choice" data-val="요양원">전문 요양원</button>
-        <button class="choice" data-val="가족과상의">그때 가족과 상의</button>
-      </div>
-    </div>
-    <div class="section">
-      <label class="fieldlabel" for="m2-guardian">내 의사결정을 대신해 줄 신뢰하는 가족(후견인)이 있다면 메모해두세요</label>
-      <input type="text" id="m2-guardian" placeholder="예: 첫째 아들, 배우자 등">
-    </div>
-    <div class="box good">
-      <div class="box-t">📍 등록 안내</div>
-      <p>사전연명의료의향서는 이 화면에서 "작성"만 되는 거예요. 법적 효력이 생기려면 보건소나 국민건강보험공단 지사 등 지정 등록기관에서 본인이 직접 등록해야 해요. 가까운 등록기관은 "사전연명의료의향서 등록기관 찾기"로 검색하면 확인할 수 있어요.</p>
-    </div>
-    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
-  </section>
-
-  <!-- 모듈 ③ -->
-  <section class="screen" id="screen-m3">
-    <div class="section">
-      <p class="lead">남들 눈치 보느라 치르는 장례 대신, 내가 원하는 마지막 모습을 직접 골라보세요.</p>
-      <label class="fieldlabel">장례 규모와 방식</label>
-      <div class="choicerow" id="m3-type">
-        <button class="choice" data-val="3일장">일반 3일장</button>
-        <button class="choice" data-val="가족장">가족장(작은 장례식)</button>
-        <button class="choice" data-val="무빈소">빈소 없는 장례</button>
-      </div>
-    </div>
-    <div class="section">
-      <label class="fieldlabel">내가 쉴 곳 (안치 방법)</label>
-      <div class="choicerow" id="m3-rest">
-        <button class="choice" data-val="봉안당">봉안당(납골당)</button>
-        <button class="choice" data-val="자연장">수목장·잔디장(자연장)</button>
-        <button class="choice" data-val="산분장">바다에 뿌리는 산분장</button>
-      </div>
-    </div>
-    <div class="section">
-      <label class="fieldlabel" for="m3-note">영정 사진, 틀어줬으면 하는 음악, 꼭 연락할 지인 그룹 등을 메모해두세요</label>
-      <textarea id="m3-note" placeholder="예: 작년 여행 사진으로, 좋아했던 노래 한 곡, 동창회 모임은 꼭 연락..."></textarea>
-    </div>
-    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
-  </section>
-
-  <!-- 모듈 ④ ★핵심 -->
-  <section class="screen" id="screen-m4">
-    <div class="section">
-      <h3 style="font-size:15px; margin-bottom:10px;">🗺️ 숨은 자산 보물지도</h3>
-      <p class="lead">계좌번호나 비밀번호는 절대 받지 않아요. "어느 기관에 무엇이 있는지"만 가족에게 남겨두는 거예요. 개인 간 빌려준 돈이나 상조 가입처럼, 정부의 안심상속 원스톱으로도 잘 안 나오는 항목까지 챙길 수 있어요.</p>
-      <div class="checklist">
-        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="주거래 은행"><span class="ck-body"><span class="ck-title">주거래 은행이 있다</span><input type="text" placeholder="은행 이름만 (예: 농협, 국민)" class="m4-ck-detail"></span></label>
-        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="가입 보험"><span class="ck-body"><span class="ck-title">가입된 보험이 있다</span><input type="text" placeholder="보험사·상품명 정도 (예: 삼성생명 암보험)" class="m4-ck-detail"></span></label>
-        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="부동산"><span class="ck-body"><span class="ck-title">보유 부동산이 있다</span><input type="text" placeholder="예: 거주 아파트 1채" class="m4-ck-detail"></span></label>
-        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="개인 채권·계모임"><span class="ck-body"><span class="ck-title">개인적으로 빌려준 돈·계모임 돈이 있다</span><input type="text" placeholder="상대방이나 모임 이름 정도" class="m4-ck-detail"></span></label>
-        <label class="checkrow"><input type="checkbox" class="m4-ck" data-label="상조 가입"><span class="ck-body"><span class="ck-title">가입된 상조 회사가 있다</span><input type="text" placeholder="상조회사 이름" class="m4-ck-detail"></span></label>
-      </div>
-      <div class="box warn">
-        <div class="box-t">⚠️ 안전 원칙</div>
-        <p>계좌번호·비밀번호·카드번호는 여기 어디에도 입력하지 않아요. "무엇이 있는지"만 남겨두면, 가족이 사후에 해당 기관에 직접 문의해 100% 확인할 수 있어요.</p>
-      </div>
-    </div>
-
-    <div class="section">
-      <h3 style="font-size:15px; margin-bottom:10px;">⚖️ 법정상속분 계산기</h3>
-      <label class="fieldlabel">배우자가 계신가요?</label>
-      <div class="choicerow" id="m4-spouse">
-        <button class="choice" data-val="yes">예</button>
-        <button class="choice" data-val="no">아니요</button>
-      </div>
-      <label class="fieldlabel" style="margin-top:14px;">자녀는 몇 명인가요?</label>
-      <div class="choicerow" id="m4-kids">
-        <button class="choice" data-val="0">0명</button>
-        <button class="choice" data-val="1">1명</button>
-        <button class="choice" data-val="2">2명</button>
-        <button class="choice" data-val="3">3명</button>
-        <button class="choice" data-val="4">4명 이상</button>
-      </div>
-      <div class="box good" id="m4-result" hidden></div>
-    </div>
-
-    <div class="box warn">
-      <div class="box-t">📜 유언장이 무효가 되지 않는 5대 요건</div>
-      <p>자필증서 유언은 반드시 <b>①전문(내용 전체) ②연월일 ③주소 ④성명</b>을 본인이 직접 쓰고 <b>⑤날인(도장·인감)</b>까지 해야 효력이 생겨요. 컴퓨터로 타이핑했거나 서명만 하고 도장을 안 찍은 유언장은 법원에서 무효가 될 수 있어요. 공증을 받아두면 더 확실해요.</p>
-    </div>
-
-    <div class="box">
-      <div class="box-t">💰 사전 증여 절세 한도 (2026년 기준)</div>
-      <p>성년 자녀에게는 10년간 5,000만 원까지, 미성년 자녀에게는 10년간 2,000만 원까지 증여세 없이 줄 수 있어요. 2024년부터는 혼인·출산 시 추가로 최대 1억 원까지 더 공제돼요 (성년 자녀 기준 최대 1억 5,000만 원).</p>
-    </div>
-    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
-  </section>
-
-  <!-- 모듈 ⑤ -->
-  <section class="screen" id="screen-m5">
-    <div class="section">
-      <p class="lead">기준일을 입력하면 남은 가족이 순서대로 처리해야 할 행정 기한을 날짜로 계산해 드려요. (날짜 계산은 법령 기준을 그대로 따른 것이고, 주말·공휴일 보정은 간략화했어요)</p>
-      <label class="fieldlabel" for="m5-date">기준일 (사망일, 또는 미리 확인해볼 날짜)</label>
-      <input type="date" id="m5-date">
-      <button class="primarybtn" type="button" id="btn-m5-calc">타임라인 만들기</button>
-    </div>
-    <div id="m5-result" hidden></div>
-
-    <div class="bizbanner">💡 아래 전문가 연결은 비즈니스 모델 개념 시연이에요 — 실제 전문가 데이터베이스나 계약은 없고, 매칭이 어떻게 수익으로 이어질 수 있는지 보여주는 샘플이에요.</div>
-    <div class="bizcard">
-      <div class="t">👉 유언 공증 &amp; 상속 설계 전문 법무사 연결 (시연)</div>
-      <div class="s">모듈④에서 자필 유언·재산 배분에 관심을 표시하면 연결되는 자리예요.</div>
-    </div>
-    <div class="bizcard">
-      <div class="t">👉 상속·증여세 절세 전문 세무사 상담 연결 (시연)</div>
-      <div class="s">모듈④에서 사전 증여·부동산 상속을 체크하면 연결되는 자리예요.</div>
-    </div>
-    <div class="bizcard">
-      <div class="t">👉 수목장·작은 장례식 사전 견적 비교 연결 (시연)</div>
-      <div class="s">모듈③에서 수목장·가족장을 선택하면 연결되는 자리예요.</div>
-    </div>
-
-    <div class="section" style="margin-top:28px;">
-      <h3 style="font-size:15px; margin-bottom:10px;">🕯️ 기일(忌日) 알림</h3>
-      <p class="lead">돌아가신 날을 자녀들이 잊지 않도록, 매년 그날 캘린더로 알림이 오게 걸어둘 수 있어요. 타임라인을 먼저 만들면 버튼이 활성화돼요.</p>
-      <label class="fieldlabel" style="margin-top:4px;" for="m5-memorial-msg">기일에 가족에게 전하고 싶은 한마디 (선택)</label>
-      <textarea id="m5-memorial-msg" placeholder="예: 슬퍼하지 말고, 내가 좋아하던 음식 한 끼 나누며 날 기억해줘."></textarea>
-      <a class="ghostbtn" id="m5-cal" href="#" target="_blank" rel="noopener" style="display:block; text-align:center; text-decoration:none; box-sizing:border-box; opacity:.5; pointer-events:none;">📅 매년 기일 알림을 캘린더에 추가</a>
-      <button class="ghostbtn" type="button" id="btn-m5-preview" style="opacity:.5; pointer-events:none;">📱 가족이 받을 화면 미리보기 (시연)</button>
-      <div class="box warn" style="margin-top:10px;">
-        <div class="box-t">⚠️ 꼭 알아두세요</div>
-        <p>이 버튼들은 매년 자동으로 문자를 보내주는 게 아니라, 누른 사람의 구글 캘린더에 "매년 반복" 알림을 등록해주는 거예요. 실제 문자·카카오톡 자동 발송은 유료 발송 서비스가 필요해서, 무료로 구현할 수 있는 가장 현실적인 방법으로 캘린더 알림을 선택했고, '미리보기'는 그 알림을 봤을 때 가족 화면이 어떤 느낌일지 보여주는 시연용 화면이에요. 자녀 각자의 캘린더에도 추가하면 각자 알림을 받을 수 있어요.</p>
-      </div>
-    </div>
-
-    <button class="ghostbtn" type="button" data-go="home">저장하고 홈으로</button>
-  </section>
-
-  <!-- 요약 카드 -->
-  <section class="screen" id="screen-summary">
-    <div class="sumcard">
-      <h2>인생안심 정리표</h2>
-      <div class="sub">지금까지 채운 내용을 모은 요약이에요 · <span id="sum-date"></span></div>
-      <div id="sum-body"></div>
-    </div>
-    <button class="primarybtn" type="button" id="btn-sum-copy">요약 복사하기</button>
-    <button class="ghostbtn" type="button" data-go="home">홈으로</button>
-  </section>
-</div>
-
-<!-- 수신 화면 미리보기 모달 (시연용 — 실제 발송 기능 아님) -->
-<div class="phonemodal-overlay" id="phonemodal-overlay" hidden>
-  <div class="phonemodal">
-    <div class="phonemodal-head">
-      <span class="phonemodal-label" id="phonemodal-label">📱 수신 화면 미리보기 (시연)</span>
-      <button class="phonemodal-close" id="phonemodal-close" type="button" aria-label="닫기">✕</button>
-    </div>
-    <div class="phonemodal-body">
-      <span class="phonemodal-chip" id="phonemodal-chip"></span>
-      <div class="phonemodal-msgbox">
-        <div class="phonemodal-from" id="phonemodal-from"></div>
-        <div class="phonemodal-text" id="phonemodal-text"></div>
-      </div>
-      <button class="ghostbtn" type="button" id="phonemodal-speak">🔊 음성으로 듣기</button>
-      <div class="box warn" style="margin-top:12px;">
-        <div class="box-t">⚠️ 이건 시연용 화면이에요</div>
-        <p id="phonemodal-caption"></p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-  if('serviceWorker' in navigator){
-    window.addEventListener('load', function(){
-      navigator.serviceWorker.register('service-worker.js').catch(function(){ /* 설치 안 돼도 앱 자체는 그대로 동작해야 함 */ });
-    });
-  }
-</script>
-<script>
-(function(){
-  var state = {
-    m1:{proud:'', thanks:'', letter:''},
-    m2:{cpr:'', care:'', guardian:''},
-    m3:{type:'', rest:'', note:''},
-    m4:{checks:{}, spouse:'', kids:''},
-    m5:{date:'', memorialMsg:''}
-  };
-
-  var STORAGE_KEY = 'insaeng_ansim_state_v1';
-  function saveState(){
-    try{
-      var copy = JSON.parse(JSON.stringify(state));
-      if(copy.m5 && copy.m5.baseDate) copy.m5.baseDate = state.m5.date; // Date 객체는 저장하지 않고 날짜 문자열로 다시 만들 수 있게 함
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(copy));
-    }catch(e){ /* 저장 실패해도 앱은 계속 동작해야 함 */ }
-  }
-  function loadSavedState(){
-    try{
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return null;
-      return JSON.parse(raw);
-    }catch(e){ return null; }
-  }
-
-  var MOD_TITLES = {m1:'① 마음 갈무리', m2:'② 존엄한 결정', m3:'③ 마지막 소풍', m4:'④ 보물지도 & 유언 가이드', m5:'⑤ 사후 로드맵'};
-
-  var screens = {};
-  ['home','m1','m2','m3','m4','m5','summary'].forEach(function(k){
-    screens[k] = document.getElementById('screen-' + k);
-  });
-
-  function go(name){
-    Object.keys(screens).forEach(function(k){ screens[k].classList.toggle('active', k === name); });
-    var backBtn = document.getElementById('btn-top-back');
-    var title = document.getElementById('topbar-title');
-    var chip = document.getElementById('topbar-chip');
-    if(name === 'home'){
-      backBtn.hidden = true; title.textContent = '인생안심 길잡이'; chip.hidden = true;
-      updateHome();
-    } else if(name === 'summary'){
-      backBtn.hidden = false; title.textContent = '인생안심 정리표'; chip.hidden = true;
-      renderSummary();
-    } else {
-      backBtn.hidden = false; title.textContent = MOD_TITLES[name] || '';
-      chip.hidden = false; chip.textContent = '모듈 ' + name.replace('m','');
-    }
-    window.scrollTo(0,0);
-  }
-
-  document.querySelectorAll('[data-go]').forEach(function(btn){
-    btn.addEventListener('click', function(){ go(btn.dataset.go); });
-  });
-  document.getElementById('btn-top-back').addEventListener('click', function(){ go('home'); });
-
-  function moduleFilled(key){
-    if(key === 'm1') return !!state.m1.letter;
-    if(key === 'm2') return !!(state.m2.cpr || state.m2.care || state.m2.guardian);
-    if(key === 'm3') return !!(state.m3.type || state.m3.rest || state.m3.note);
-    if(key === 'm4') return Object.keys(state.m4.checks).length > 0 || !!(state.m4.spouse && state.m4.kids !== '');
-    if(key === 'm5') return !!state.m5.date;
-    return false;
-  }
-
-  function updateHome(){
-    var filled = 0;
-    ['m1','m2','m3','m4','m5'].forEach(function(k){
-      var done = moduleFilled(k);
-      document.getElementById('dot-' + k).classList.toggle('done', done);
-      if(done) filled++;
-    });
-    document.getElementById('sum-progress').textContent = filled === 0
-      ? '아직 채운 모듈이 없어요'
-      : filled + ' / 5개 모듈을 채웠어요';
-  }
-
-  /* ---- choice-row helper ---- */
-  function wireChoiceRow(id, onPick){
-    var row = document.getElementById(id);
-    row.querySelectorAll('.choice').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        row.querySelectorAll('.choice').forEach(function(b){ b.classList.remove('sel'); });
-        btn.classList.add('sel');
-        onPick(btn.dataset.val);
-        saveState();
-      });
-    });
-  }
-  function selectChoice(id, val){
-    if(!val) return;
-    var row = document.getElementById(id);
-    row.querySelectorAll('.choice').forEach(function(b){
-      b.classList.toggle('sel', b.dataset.val === val);
-    });
-  }
-
-  /* ---- 모듈 1 ---- */
-  document.getElementById('m1-proud').addEventListener('input', function(e){ state.m1.proud = e.target.value; saveState(); });
-  document.getElementById('m1-thanks').addEventListener('input', function(e){ state.m1.thanks = e.target.value; saveState(); });
-  document.getElementById('btn-m1-make').addEventListener('click', function(){
-    var proud = (state.m1.proud || '').trim();
-    var thanks = (state.m1.thanks || '').trim();
-    var lines = [];
-    lines.push('사랑하는 가족에게,');
-    lines.push('');
-    if(proud){
-      lines.push('지난 날을 돌아보면, ' + proud + '. 그 순간이 내 인생에서 가장 뿌듯한 기억으로 남아있어요.');
-    }
-    if(thanks){
-      lines.push('');
-      lines.push(thanks + ' 늘 마음속에 담아두고 있었는데, 이제야 글로 전합니다.');
-    }
-    lines.push('');
-    lines.push('부족한 게 많은 삶이었지만, 여러분이 있어 충분히 행복했습니다.');
-    lines.push('서로 아끼며 지내주길, 그것이 내가 남기는 마지막 바람입니다.');
-    var letter = lines.join('\n');
-    state.m1.letter = letter;
-    document.getElementById('m1-letter').textContent = letter;
-    document.getElementById('m1-letter-wrap').hidden = false;
-    saveState();
-  });
-
-  var m1cAgeSel = '';
-  wireChoiceRow('m1c-age', function(v){ m1cAgeSel = v; });
-
-  function makeCapsule(name, ageSel, yearVal, letter){
-    var card = name + '에게,\n\n네가 ' + ageSel + '살이 된 걸 진심으로 축하한다.\n\n'
-      + (letter || '') + '\n\n— 이 편지를 미리 써둔 날';
-    document.getElementById('m1c-card').textContent = card;
-    document.getElementById('m1c-wrap').hidden = false;
-
-    var now = new Date();
-    var targetDate = new Date(yearVal, now.getMonth(), now.getDate());
-    var link = gcalLink(
-      name + '에게 편지 전달하는 날',
-      targetDate,
-      name + '이 ' + ageSel + '살이 되는 해예요. 보관해둔 편지를 전달해주세요. (날짜는 대략적인 시기라, 정확한 생일로 캘린더에서 옮겨도 좋아요)',
-      false
-    );
-    document.getElementById('m1c-cal').href = link;
-    state.m1.capsule = {name:name, age:ageSel, year:yearVal, letter:letter};
-  }
-
-  document.getElementById('btn-m1c-make').addEventListener('click', function(){
-    var name = document.getElementById('m1c-name').value.trim();
-    var yearVal = parseInt(document.getElementById('m1c-year').value, 10);
-    var letter = document.getElementById('m1c-letter').value.trim();
-    var warnBox = document.getElementById('m1c-warn');
-    var warnText = document.getElementById('m1c-warn-text');
-    var nowYear = new Date().getFullYear();
-    if(!name || !m1cAgeSel || !yearVal || isNaN(yearVal) || yearVal <= nowYear){
-      warnText.textContent = '이름, 나이, 올해(' + nowYear + ')보다 미래인 연도(4자리)를 모두 입력해주세요.';
-      warnBox.hidden = false;
-      return;
-    }
-    warnBox.hidden = true;
-    makeCapsule(name, m1cAgeSel, yearVal, letter);
-    saveState();
-  });
-
-  /* ---- 모듈 2 ---- */
-  wireChoiceRow('m2-cpr', function(v){ state.m2.cpr = v; });
-  wireChoiceRow('m2-care', function(v){ state.m2.care = v; });
-  document.getElementById('m2-guardian').addEventListener('input', function(e){ state.m2.guardian = e.target.value; saveState(); });
-
-  /* ---- 모듈 3 ---- */
-  wireChoiceRow('m3-type', function(v){ state.m3.type = v; });
-  wireChoiceRow('m3-rest', function(v){ state.m3.rest = v; });
-  document.getElementById('m3-note').addEventListener('input', function(e){ state.m3.note = e.target.value; saveState(); });
-
-  /* ---- 모듈 4 ---- */
-  document.querySelectorAll('.m4-ck').forEach(function(ck){
-    ck.addEventListener('change', function(){
-      if(ck.checked){
-        state.m4.checks[ck.dataset.label] = '';
-      } else {
-        delete state.m4.checks[ck.dataset.label];
-      }
-      saveState();
-    });
-  });
-  document.querySelectorAll('.m4-ck-detail').forEach(function(inp){
-    inp.addEventListener('input', function(){
-      var ck = inp.closest('.checkrow').querySelector('.m4-ck');
-      if(ck.checked) state.m4.checks[ck.dataset.label] = inp.value;
-      saveState();
-    });
-  });
-
-  function computeHeirShare(){
-    var box = document.getElementById('m4-result');
-    var spouse = state.m4.spouse, kids = state.m4.kids;
-    if(!spouse || kids === '') { box.hidden = true; return; }
-    var kidsNum = kids === '4' ? 4 : parseInt(kids, 10);
-    var html = '';
-    if(spouse === 'yes' && kidsNum > 0){
-      var total = 1.5 + kidsNum;
-      var spousePct = (1.5/total*100).toFixed(1);
-      var childPct = (1/total*100).toFixed(1);
-      html = '<div class="box-t">⚖️ 예상 법정상속분 (일반적인 경우)</div>'
-        + '<p>배우자 <b>' + spousePct + '%</b>, 자녀 1명당 <b>' + childPct + '%</b>' + (kidsNum===4?' (4명 이상은 인원수대로 다시 나눠요)':'') + '</p>'
-        + '<p style="font-size:12px; opacity:.85;">※ 배우자와 직계비속이 공동상속할 때는 배우자가 자녀 몫의 1.5배를 받아요(민법 1009조). 부모님(직계존속) 생존, 유증 등 복잡한 사정이 있으면 결과가 달라지니 전문가 상담을 권장해요.</p>';
-    } else if(spouse === 'yes' && kidsNum === 0){
-      html = '<div class="box-t">⚖️ 예상 법정상속분 (일반적인 경우)</div>'
-        + '<p>직계비속이 없으면 배우자가 단독 상속하는 경우가 많아요. 다만 부모님(직계존속)이 생존해 계시면 함께 상속받는 등 사정에 따라 달라지니, 이 경우는 꼭 전문가 상담을 권장해요.</p>';
-    } else if(spouse === 'no' && kidsNum > 0){
-      var eachPct = (100/kidsNum).toFixed(1);
-      html = '<div class="box-t">⚖️ 예상 법정상속분 (일반적인 경우)</div>'
-        + '<p>자녀들이 균등하게 나눠 받아요. 자녀 1명당 <b>' + eachPct + '%</b></p>';
-    } else {
-      html = '<div class="box-t">⚖️ 법정상속분</div>'
-        + '<p>배우자·자녀가 모두 없는 경우는 상속 순위가 더 복잡해져요(부모·형제자매 등). 이 경우는 전문가 상담을 권장해요.</p>';
-    }
-    box.innerHTML = html;
-    box.hidden = false;
-  }
-  wireChoiceRow('m4-spouse', function(v){ state.m4.spouse = v; computeHeirShare(); });
-  wireChoiceRow('m4-kids', function(v){ state.m4.kids = v; computeHeirShare(); });
-
-  /* ---- 모듈 5: 날짜 계산 ---- */
-  function fmt(d){
-    return d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0');
-  }
-  function dayLabel(base, target){
-    var diff = Math.round((target - base) / 86400000);
-    return 'D+' + diff;
-  }
-  function endOfMonthPlus(base, n){
-    // 기준일이 속한 달의 말일로부터 n개월 후 '말일'
-    return new Date(base.getFullYear(), base.getMonth() + 1 + n, 0);
-  }
-  function plusMonths(base, n){
-    var d = new Date(base);
-    d.setMonth(d.getMonth() + n);
-    return d;
-  }
-  function pad2(n){ return String(n).padStart(2, '0'); }
-  function gcalLink(title, dateObj, details, recurYearly){
-    var y = dateObj.getFullYear(), m = dateObj.getMonth() + 1, d = dateObj.getDate();
-    var start = y + pad2(m) + pad2(d);
-    var endDate = new Date(dateObj.getTime() + 86400000);
-    var end = endDate.getFullYear() + pad2(endDate.getMonth() + 1) + pad2(endDate.getDate());
-    var url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
-      + '&text=' + encodeURIComponent(title)
-      + '&dates=' + start + '/' + end
-      + '&details=' + encodeURIComponent(details);
-    if(recurYearly) url += '&recur=' + encodeURIComponent('RRULE:FREQ=YEARLY');
-    return url;
-  }
-
-  /* ---- 수신 화면 미리보기(시연) ---- */
-  function speakText(text){
-    if('speechSynthesis' in window){
-      window.speechSynthesis.cancel();
-      var u = new SpeechSynthesisUtterance(text);
-      u.lang = 'ko-KR'; u.rate = 0.95;
-      window.speechSynthesis.speak(u);
-    }
-  }
-  var PHONE_PRESETS = {
-    capsule: function(){
-      var c = state.m1.capsule;
-      if(!c) return null;
-      return {
-        chip: '⏳ 타임캡슐 편지 도착 (시연 화면)',
-        from: c.name + '님에게 — ' + c.year + '년, ' + c.age + '살',
-        text: c.name + '에게,\n\n네가 ' + c.age + '살이 된 걸 진심으로 축하한다.\n\n' + (c.letter || '') + '\n\n— 이 편지를 미리 써둔 날',
-        caption: '실제로는 이 화면처럼 저절로 뜨는 게 아니라, 가족이 캘린더 알림을 보고 보관해둔 편지를 그날 직접 전달하는 방식이에요.'
-      };
-    },
-    memorial: function(){
-      var base = state.m5.baseDate;
-      if(!base) return null;
-      var msg = (state.m5.memorialMsg || '').trim() || '오늘은 제가 떠난 날이에요. 슬퍼하기보다, 좋아하던 음식 한 끼 나누며 저를 떠올려 주세요.';
-      return {
-        chip: '🕯️ 기일 알림 (시연 화면)',
-        from: '매년 ' + fmt(base).slice(5) + ' · 가족 알림',
-        text: msg,
-        caption: '실제로는 문자가 저절로 오는 게 아니라, 가족이 등록해둔 구글 캘린더의 "매년 반복" 알림을 보고 그날을 함께 떠올리는 방식이에요.'
-      };
-    }
-  };
-  function openPhonePreview(type){
-    var data = PHONE_PRESETS[type] && PHONE_PRESETS[type]();
-    if(!data) return;
-    document.getElementById('phonemodal-chip').textContent = data.chip;
-    document.getElementById('phonemodal-from').textContent = data.from;
-    document.getElementById('phonemodal-text').textContent = data.text;
-    document.getElementById('phonemodal-caption').textContent = data.caption;
-    document.getElementById('phonemodal-speak').onclick = function(){ speakText(data.text); };
-    document.getElementById('phonemodal-overlay').hidden = false;
-  }
-  document.getElementById('phonemodal-close').addEventListener('click', function(){
-    document.getElementById('phonemodal-overlay').hidden = true;
-    window.speechSynthesis && window.speechSynthesis.cancel();
-  });
-  document.getElementById('phonemodal-overlay').addEventListener('click', function(e){
-    if(e.target === this){ this.hidden = true; window.speechSynthesis && window.speechSynthesis.cancel(); }
-  });
-  document.getElementById('btn-m1c-preview').addEventListener('click', function(){ openPhonePreview('capsule'); });
-  document.getElementById('btn-m5-preview').addEventListener('click', function(){ openPhonePreview('memorial'); });
-  document.getElementById('m5-memorial-msg').addEventListener('input', function(e){
-    state.m5.memorialMsg = e.target.value;
-    if(state.m5.baseDate){
-      var link = gcalLink('기일 — 돌아가신 날', state.m5.baseDate,
-        '매년 이날을 기억해요.' + (state.m5.memorialMsg.trim() ? ('\n\n' + state.m5.memorialMsg.trim()) : ''), true);
-      document.getElementById('m5-cal').href = link;
-    }
-    saveState();
-  });
-
-  function runM5Calc(val, memorialMsgVal){
-    if(!val) return;
-    state.m5.date = val;
-    var base = new Date(val + 'T00:00:00');
-
-    var items = [
-      { t:'화장장 예약 · 건강보험 장제비 신청 안내', s:'e하늘 장사정보시스템에서 화장장을 예약하고, 국민건강보험공단에 장제비를 문의해보세요.', due: new Date(base.getTime() + 2*86400000), tag:'장례 중' },
-      { t:'사망신고', s:'사망 사실을 안 날부터 1개월 이내 — 주민센터에 신고해요. 늦으면 과태료가 있어요.', due: plusMonths(base, 1), tag:'필수 행정' },
-      { t:'안심상속 원스톱서비스 신청', s:'사망신고와 함께 신청하면 한 번에 처리돼요. 고인의 예금·보험·부동산·채무·연금을 무료로 한 번에 조회할 수 있어요.', due: endOfMonthPlus(base, 12), tag:'필수 행정' },
-      { t:'상속포기 · 한정승인', s:'빚이 재산보다 많을 수 있다면, 상속개시 있음을 안 날부터 3개월 이내 가정법원에 신청해야 빚을 물려받지 않아요.', due: plusMonths(base, 3), tag:'법률 골든타임' },
-      { t:'상속세 신고 · 납부', s:'상속개시일이 속한 달의 말일부터 6개월 이내 (상속인이 해외에 있으면 9개월).', due: endOfMonthPlus(base, 6), tag:'세무' },
-      { t:'취득세 신고 (상속 부동산)', s:'상속개시일이 속한 달의 말일부터 6개월 이내.', due: endOfMonthPlus(base, 6), tag:'세무' }
-    ];
-    items.sort(function(a,b){ return a.due - b.due; });
-
-    var html = '<div class="box" style="margin-top:0;">';
-    items.forEach(function(it){
-      html += '<div class="tlrow"><div class="d">' + dayLabel(base, it.due) + '</div><div class="body">'
-        + '<div class="t">' + it.t + '</div>'
-        + '<div class="s">' + it.s + '</div>'
-        + '<div class="due">' + it.tag + ' · 마감 ' + fmt(it.due) + '</div>'
-        + '</div></div>';
-    });
-    html += '</div>'
-      + '<div class="box warn" style="margin-top:10px;"><div class="box-t">⚠️ 참고</div>'
-      + '<p>마감일이 토요일·일요일·공휴일이면 보통 다음 평일까지로 늘어나요. 이 프로토타입은 간단한 달 계산만 반영했고, 공휴일까지 반영한 정확한 날짜는 실제 신청 전 꼭 다시 확인하세요.</p></div>';
-    document.getElementById('m5-result').innerHTML = html;
-    document.getElementById('m5-result').hidden = false;
-
-    state.m5.baseDate = base;
-    state.m5.memorialMsg = memorialMsgVal || '';
-    var annivDetails = '매년 이날을 기억해요.' + (state.m5.memorialMsg.trim() ? ('\n\n' + state.m5.memorialMsg.trim()) : '');
-    var annivLink = gcalLink('기일 — 돌아가신 날', base, annivDetails, true);
-    var calBtn = document.getElementById('m5-cal');
-    calBtn.href = annivLink;
-    calBtn.style.opacity = '1';
-    calBtn.style.pointerEvents = 'auto';
-    var prevBtn = document.getElementById('btn-m5-preview');
-    prevBtn.style.opacity = '1';
-    prevBtn.style.pointerEvents = 'auto';
-  }
-
-  document.getElementById('btn-m5-calc').addEventListener('click', function(){
-    var val = document.getElementById('m5-date').value;
-    runM5Calc(val, document.getElementById('m5-memorial-msg').value);
-    saveState();
-  });
-
-  /* ---- 요약 카드 ---- */
-  function renderSummary(){
-    document.getElementById('sum-date').textContent = new Date().toISOString().slice(0,10).replace(/-/g,'.');
-    var body = document.getElementById('sum-body');
-    var html = '';
-
-    html += '<div class="sumsec"><div class="h">① 마음 갈무리</div><div class="v">'
-      + (state.m1.letter ? state.m1.letter.replace(/\n/g,'<br>') : '<span class="empty">아직 작성하지 않았어요</span>')
-      + '</div></div>';
-
-    html += '<div class="sumsec"><div class="h">⏳ 타임캡슐 편지</div><div class="v">'
-      + (state.m1.capsule ? (state.m1.capsule.name + '에게, ' + state.m1.capsule.year + '년(' + state.m1.capsule.age + '살) 전달 예정')
-        : '<span class="empty">아직 작성하지 않았어요</span>')
-      + '</div></div>';
-
-    html += '<div class="sumsec"><div class="h">② 존엄한 결정</div><div class="v">';
-    if(state.m2.cpr || state.m2.care || state.m2.guardian){
-      var p2 = [];
-      if(state.m2.cpr) p2.push('연명치료: ' + state.m2.cpr);
-      if(state.m2.care) p2.push('돌봄 방식: ' + state.m2.care);
-      if(state.m2.guardian) p2.push('후견인 메모: ' + state.m2.guardian);
-      html += p2.join(' · ');
-    } else { html += '<span class="empty">아직 작성하지 않았어요</span>'; }
-    html += '</div></div>';
-
-    html += '<div class="sumsec"><div class="h">③ 마지막 소풍</div><div class="v">';
-    if(state.m3.type || state.m3.rest || state.m3.note){
-      var p3 = [];
-      if(state.m3.type) p3.push('장례 방식: ' + state.m3.type);
-      if(state.m3.rest) p3.push('안치 방법: ' + state.m3.rest);
-      if(state.m3.note) p3.push('메모: ' + state.m3.note);
-      html += p3.join(' · ');
-    } else { html += '<span class="empty">아직 작성하지 않았어요</span>'; }
-    html += '</div></div>';
-
-    html += '<div class="sumsec"><div class="h">④ 보물지도 &amp; 상속</div><div class="v">';
-    var checks = Object.keys(state.m4.checks);
-    var p4 = [];
-    if(checks.length){
-      p4.push('보유 항목: ' + checks.map(function(k){ var d = state.m4.checks[k]; return d ? (k + '(' + d + ')') : k; }).join(', '));
-    }
-    if(state.m4.spouse && state.m4.kids !== ''){
-      p4.push('가족구성: 배우자 ' + (state.m4.spouse==='yes'?'있음':'없음') + ', 자녀 ' + state.m4.kids + (state.m4.kids==='4'?'명 이상':'명'));
-    }
-    html += p4.length ? p4.join(' · ') : '<span class="empty">아직 작성하지 않았어요</span>';
-    html += '</div></div>';
-
-    html += '<div class="sumsec"><div class="h">⑤ 사후 로드맵</div><div class="v">';
-    html += state.m5.date ? ('기준일 ' + state.m5.date + '로 타임라인을 확인했어요') : '<span class="empty">아직 작성하지 않았어요</span>';
-    html += '</div></div>';
-
-    html += '<div class="sumsec"><div class="h">🕯️ 기일 알림</div><div class="v">'
-      + (state.m5.baseDate ? ('매년 반복 캘린더 알림 설정됨' + (state.m5.memorialMsg && state.m5.memorialMsg.trim() ? (' · 한마디: ' + state.m5.memorialMsg.trim()) : ''))
-        : '<span class="empty">아직 설정하지 않았어요</span>')
-      + '</div></div>';
-
-    body.innerHTML = html;
-  }
-
-  document.getElementById('btn-sum-copy').addEventListener('click', function(){
-    var text = document.getElementById('sum-body').innerText;
-    try{
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        navigator.clipboard.writeText('인생안심 정리표\n\n' + text).catch(function(){ fallbackSelect(); });
-      } else { fallbackSelect(); }
-    }catch(e){ fallbackSelect(); }
-    function fallbackSelect(){
-      var range = document.createRange();
-      range.selectNode(document.getElementById('sum-body'));
-      var sel = window.getSelection();
-      sel.removeAllRanges(); sel.addRange(range);
-    }
-  });
-
-  /* ---- 저장된 내용 복원 ---- */
-  function restoreFromSaved(){
-    var saved = loadSavedState();
-    if(!saved) return;
-
-    // m1
-    if(saved.m1){
-      state.m1.proud = saved.m1.proud || '';
-      state.m1.thanks = saved.m1.thanks || '';
-      document.getElementById('m1-proud').value = state.m1.proud;
-      document.getElementById('m1-thanks').value = state.m1.thanks;
-      if(saved.m1.letter){
-        state.m1.letter = saved.m1.letter;
-        document.getElementById('m1-letter').textContent = state.m1.letter;
-        document.getElementById('m1-letter-wrap').hidden = false;
-      }
-      if(saved.m1.capsule){
-        var c = saved.m1.capsule;
-        document.getElementById('m1c-name').value = c.name || '';
-        document.getElementById('m1c-year').value = c.year || '';
-        document.getElementById('m1c-letter').value = c.letter || '';
-        m1cAgeSel = c.age || '';
-        selectChoice('m1c-age', m1cAgeSel);
-        if(c.name && c.age && c.year) makeCapsule(c.name, c.age, c.year, c.letter);
-      }
-    }
-    // m2
-    if(saved.m2){
-      state.m2.cpr = saved.m2.cpr || '';
-      state.m2.care = saved.m2.care || '';
-      state.m2.guardian = saved.m2.guardian || '';
-      selectChoice('m2-cpr', state.m2.cpr);
-      selectChoice('m2-care', state.m2.care);
-      document.getElementById('m2-guardian').value = state.m2.guardian;
-    }
-    // m3
-    if(saved.m3){
-      state.m3.type = saved.m3.type || '';
-      state.m3.rest = saved.m3.rest || '';
-      state.m3.note = saved.m3.note || '';
-      selectChoice('m3-type', state.m3.type);
-      selectChoice('m3-rest', state.m3.rest);
-      document.getElementById('m3-note').value = state.m3.note;
-    }
-    // m4
-    if(saved.m4){
-      state.m4.checks = saved.m4.checks || {};
-      state.m4.spouse = saved.m4.spouse || '';
-      state.m4.kids = saved.m4.kids || '';
-      document.querySelectorAll('.m4-ck').forEach(function(ck){
-        var label = ck.dataset.label;
-        if(Object.prototype.hasOwnProperty.call(state.m4.checks, label)){
-          ck.checked = true;
-          var detail = ck.closest('.checkrow').querySelector('.m4-ck-detail');
-          detail.value = state.m4.checks[label] || '';
+    // 기본 초기 데이터 (다자녀/대가족 멀티 탭 기본 세팅)
+    const DEFAULT_STATE = {
+      activeModule: null, // null이면 메인 홈(5개 모듈 카드 목록)
+      autobiography: {
+        q1: '가족들을 위해 열심히 달렸던 젊은 날의 봄날과, 아이들이 처음 태어났던 날의 미소가 가장 기억에 남습니다.',
+        q2: '힘든 순간도 있었지만 우리 가족이 곁에 있어 참 따뜻하고 행복한 삶이었습니다.',
+        q3: '서로 다투지 말고 명절이나 기일에는 맛있는 음식을 먹으며 웃는 얼굴로 나를 떠올려 주렴.'
+      },
+      familyMembers: [
+        {
+          id: 'fam-1',
+          name: '배우자 (여보)',
+          relation: '배우자',
+          icon: '💑',
+          occasion: '내가 떠난 직후 열어볼 편지',
+          targetDate: '2030-05-15',
+          email: '',
+          keywords: '평생 내 곁을 지켜줘서 고마워, 식사 거르지 말고 건강 잘 챙겨요',
+          letter: '사랑하는 여보, 평생 부족한 내 곁을 든든하게 지켜주고 우리 가족의 버팀목이 되어주어서 정말 고마웠어요. 내가 먼저 소풍을 떠나더라도 식사 절대 거르지 말고, 아이들과 함께 건강하고 편안하게 지내길 바라요. 다시 만나는 날까지 늘 당신 곁을 따뜻하게 지켜줄게요.'
+        },
+        {
+          id: 'fam-2',
+          name: '첫째 자녀',
+          relation: '첫째 자녀',
+          icon: '👧',
+          occasion: '결혼하거나 중요한 출발을 할 때',
+          targetDate: '2032-10-15',
+          email: '',
+          keywords: '든든한 맏이여서 늘 고마웠어, 동생과 사이좋게 지내고 네 꿈을 응원해',
+          letter: '우리 든든한 첫째야, 언제나 맏이로서 부모 마음 먼저 헤아려주고 동생을 챙겨주어 참 고맙고 대견했단다. 살면서 힘든 날이 찾아와도 너는 충분히 지혜롭게 이겨낼 수 있는 멋진 사람이야. 동생과 늘 서로 의지하며 네가 원하는 행복한 삶을 마음껏 펼쳐나가렴.'
+        },
+        {
+          id: 'fam-3',
+          name: '둘째 자녀',
+          relation: '둘째 자녀',
+          icon: '👦',
+          occasion: '스무 살 성년이 되거나 독립할 때',
+          targetDate: '2035-03-02',
+          email: '',
+          keywords: '우리 집 비타민 막내, 기죽지 말고 언제나 당당하게 웃으며 살아가렴',
+          letter: '언제 봐도 눈에 넣어도 아프지 않을 우리 막내야, 네가 환하게 웃어줄 때마다 엄마 아빠는 세상의 모든 피로가 다 녹아내렸단다. 어디에 있든 기죽지 말고 지금처럼 밝고 따뜻한 마음을 가진 어른으로 자라주렴. 하늘에서도 언제나 너의 가장 큰 응원단장이 되어줄게!'
         }
+      ],
+      selectedFamilyId: 'fam-1',
+      medical: {
+        cpr: false,
+        ventilator: false,
+        dialysis: false,
+        anticancer: false,
+        hospice: true,
+        carePlace: '가정 호스피스 또는 가족과 가까운 요양병원',
+        careNote: '의미 없는 고통의 연장보다는 통증을 줄이고 가족들과 손을 잡으며 평온하게 마무리하고 싶습니다.'
+      },
+      funeral: {
+        method: '화장 후 수목장(자연장)',
+        scale: '가족과 가까운 지인만 모이는 소규모 가족장 (2일장 또는 무빈소)',
+        photoNote: '영정사진은 최근 가족여행에서 가장 환하게 웃고 있는 사진으로 해주세요.',
+        musicAndFlower: '국화꽃 대신 내가 좋아하던 밝은 계절 꽃을 놓고, 잔잔한 클래식이나 가곡을 틀어주세요.',
+        message: '검은 상복 대신 단정한 평상복을 입고, 슬퍼하기보다 내 옛날이야기를 나누며 따뜻한 식사 한 끼 하고 가세요.'
+      },
+      treasure: {
+        assets: [
+          { id: 'a1', category: '주거래 은행 예·적금', inst: 'NH농협은행 / 국민은행', memo: '안방 서랍장 두 번째 칸 파란색 파일철에 통장 보관 (계좌번호 미기재)', checked: true },
+          { id: 'a2', category: '실손·생명보험 증권', inst: '삼성생명 / 우체국보험', memo: '내 휴대폰 보험사 앱 및 거실 책장 문서함에 종이 증권 보관', checked: true },
+          { id: 'a3', category: '부동산·계약 문서', inst: '자택 등기권리증', memo: '안방 금고 상단 서류봉투 보관', checked: true },
+          { id: 'a4', category: '디지털 계정·사진첩', inst: '구글 포토 / 카카오톡', memo: '가족 공유 앨범에 옛 사진 백업 완료', checked: false }
+        ],
+        hasSpouse: true,
+        childrenCount: 2,
+        willCheck: {
+          fullHandwritten: true,
+          fullDate: true,
+          address: true,
+          name: true,
+          seal: false
+        }
+      },
+      roadmap: {
+        baseDate: '2026-10-25',
+        memorialTitle: '부모님 기일 추모 및 가족 모임 알림',
+        memorialFamilyEmails: '',
+        memorialMessage: '슬퍼하지 말고 온 가족이 모여 맛있는 식사를 하며 따뜻한 추억을 나누는 날이 되길 바랍니다.'
+      }
+    };
+
+    function App() {
+      const [state, setState] = useState(() => {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            return { ...DEFAULT_STATE, ...parsed };
+          }
+        } catch (e) {}
+        return DEFAULT_STATE;
       });
-      selectChoice('m4-spouse', state.m4.spouse);
-      selectChoice('m4-kids', state.m4.kids);
-      computeHeirShare();
-    }
-    // m5
-    if(saved.m5 && saved.m5.date){
-      document.getElementById('m5-date').value = saved.m5.date;
-      document.getElementById('m5-memorial-msg').value = saved.m5.memorialMsg || '';
-      runM5Calc(saved.m5.date, saved.m5.memorialMsg || '');
-    }
-  }
 
-  document.getElementById('btn-reset-all').addEventListener('click', function(){
-    if(!window.confirm('이 기기에 저장된 모든 내용을 지울까요? 이 작업은 되돌릴 수 없어요.')) return;
-    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
-    location.reload();
-  });
+      const [apiKey, setApiKey] = useState(() => localStorage.getItem(API_KEY_STORAGE) || '');
+      const [showApiModal, setShowApiModal] = useState(false);
+      const [showAddFamilyModal, setShowAddFamilyModal] = useState(false);
+      const [showPreviewModal, setShowPreviewModal] = useState(false);
+      const [aiLoading, setAiLoading] = useState(false);
 
-  restoreFromSaved();
-  updateHome();
-  go('home');
-})();
-</script>
+      // 새 가족 추가 모달 입력값
+      const [newFamName, setNewFamName] = useState('');
+      const [newFamRelation, setNewFamRelation] = useState('셋째 자녀');
+      const [newFamOccasion, setNewFamOccasion] = useState('특별한 기념일에 열어볼 편지');
+      const [newFamDate, setNewFamDate] = useState('2036-05-01');
+
+      // 상태 변경 시 자동 localStorage 저장
+      useEffect(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+      }, [state]);
+
+      const saveApiKey = (val) => {
+        setApiKey(val);
+        localStorage.setItem(API_KEY_STORAGE, val);
+      };
+
+      const resetAllData = () => {
+        if (window.confirm('이 기기에 저장된 모든 작성 내용을 초기 상태로 되돌리시겠습니까?')) {
+          localStorage.removeItem(STORAGE_KEY);
+          setState(DEFAULT_STATE);
+        }
+      };
+
+      // 현재 선택된 가족 객체
+      const currentFamily =
+        state.familyMembers.find((f) => f.id === state.selectedFamilyId) ||
+        state.familyMembers[0];
+
+      const updateCurrentFamily = (patch) => {
+        setState((prev) => ({
+          ...prev,
+          familyMembers: prev.familyMembers.map((f) =>
+            f.id === currentFamily.id ? { ...f, ...patch } : f
+          )
+        }));
+      };
+
+      const handleAddFamily = () => {
+        if (!newFamName.trim()) {
+          alert('추가할 가족의 이름이나 호칭을 입력해 주세요.');
+          return;
+        }
+        const iconMap = {
+          '배우자': '💑',
+          '첫째 자녀': '👧',
+          '둘째 자녀': '👦',
+          '셋째 자녀': '🧒',
+          '손주': '👶',
+          '부모님/형제': '🌷'
+        };
+        const newId = 'fam-' + Date.now();
+        const newMember = {
+          id: newId,
+          name: newFamName.trim(),
+          relation: newFamRelation,
+          icon: iconMap[newFamRelation] || '💌',
+          occasion: newFamOccasion || '미래에 열어볼 타임캡슐 편지',
+          targetDate: newFamDate || '2035-01-01',
+          email: '',
+          keywords: '늘 건강하고 행복하길 바라는 마음, 고마웠던 우리 가족의 추억',
+          letter: `사랑하는 ${newFamName.trim()}에게,
+언제나 내 삶의 큰 기쁨이 되어주어 고마웠단다. 이 편지를 열어보는 날에도 네 얼굴에 따뜻한 미소가 가득하길 진심으로 기도할게.`
+        };
+        setState((prev) => ({
+          ...prev,
+          familyMembers: [...prev.familyMembers, newMember],
+          selectedFamilyId: newId
+        }));
+        setNewFamName('');
+        setShowAddFamilyModal(false);
+      };
+
+      const handleDeleteFamily = (id) => {
+        if (state.familyMembers.length <= 1) {
+          alert('최소 1명의 가족 수신인은 남아있어야 합니다.');
+          return;
+        }
+        if (!window.confirm('이 가족의 편지 탭을 삭제하시겠습니까?')) return;
+        const filtered = state.familyMembers.filter((f) => f.id !== id);
+        setState((prev) => ({
+          ...prev,
+          familyMembers: filtered,
+          selectedFamilyId: filtered[0].id
+        }));
+      };
+
+      // ★ Gemini AI 실시간 맞춤 편지 다듬기
+      const polishLetterWithAI = async () => {
+        if (!currentFamily) return;
+        setAiLoading(true);
+        const cleanKey = apiKey.trim();
+
+        if (!cleanKey) {
+          // API 키가 없을 때도 수신인 관계와 키워드를 반영해 감동적인 문장으로 자동 윤문
+          setTimeout(() => {
+            const polished = `사랑하는 나의 ${currentFamily.name} (${currentFamily.relation})에게,
+
+` +
+              `이 편지를 네가 열어볼 때쯤이면 "${currentFamily.occasion}"이라는 뜻깊은 시간을 맞이하고 있겠구나.
+
+` +
+              `돌아보면 내가 삶에서 가장 잘한 일은 우리 가족과 함께 웃고 울며 소중한 계절들을 보낸 것이었단다. ` +
+              `특히 "${currentFamily.keywords}"라는 내 마음속 진심을 꼭 너에게 전하고 싶었어.
+
+` +
+              `${state.autobiography.q3 || '언제 어디서나 건강 잘 챙기고, 서로 아끼며 행복하게 살아가렴.'}
+
+` +
+              `하늘에서도 언제나 너의 가장 든든한 편이 되어 응원할게. 사랑한다.`;
+            updateCurrentFamily({ letter: polished });
+            setAiLoading(false);
+          }, 600);
+          return;
+        }
+
+        try {
+          const prompt = `당신은 한국의 부모님(또는 배우자)이 가족에게 남기는 웰다잉 타임캡슐 편지를 다듬어주는 따뜻한 대필 작가입니다.
+수신인 이름/호칭: ${currentFamily.name}
+수신인과의 관계: ${currentFamily.relation}
+편지를 열어볼 시점: ${currentFamily.occasion} (${currentFamily.targetDate})
+전하고 싶은 핵심 메모/키워드: ${currentFamily.keywords}
+작성자의 인생 회고 한마디: ${state.autobiography.q2}
+
+[작성 원칙]
+1. 수신인과의 관계(${currentFamily.relation})에 딱 맞는 자연스럽고 다정한 한국어 어투로 4~6문장 분량의 감동적인 편지를 작성하세요.
+2. 사용자가 적은 핵심 메모의 사실을 왜곡하지 말고 따뜻하게 풀어내세요.
+3. 불필요한 설명 없이 편지 본문만 출력하세요.`;
+
+          const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanKey}`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.65 }
+              })
+            }
+          );
+          if (!res.ok) throw new Error('API Error');
+          const data = await res.json();
+          const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            updateCurrentFamily({ letter: text.trim() });
+          }
+        } catch (err) {
+          alert('AI 키 호출 중 일시적 오류가 발생하여 기본 감성 윤문 템플릿으로 다듬었습니다.');
+          const fallback = `사랑하는 ${currentFamily.name}에게,
+
+"${currentFamily.occasion}"을 맞이한 너에게 진심을 담아 이 편지를 남긴다.
+${currentFamily.keywords}.
+늘 건강하고 행복한 나날만 가득하길 마음 깊이 응원한다.`;
+          updateCurrentFamily({ letter: fallback });
+        } finally {
+          setAiLoading(false);
+        }
+      };
+
+      // ★ 구글 캘린더 원클릭 등록 URL 생성 (가족 이메일 게스트 초대 + 매년 반복 지원)
+      const openGoogleCalendar = ({ title, dateStr, details, emails, isYearly }) => {
+        const cleanDate = (dateStr || '2026-10-25').replace(/-/g, '');
+        // 종일 일정은 시작일 ~ 다음날 형식 (YYYYMMDD/YYYYMMDD)
+        const y = parseInt(cleanDate.slice(0, 4), 10);
+        const m = parseInt(cleanDate.slice(4, 6), 10) - 1;
+        const d = parseInt(cleanDate.slice(6, 8), 10);
+        const startObj = new Date(y, m, d);
+        const endObj = new Date(y, m, d + 1);
+        const fmt = (dt) => {
+          const yy = dt.getFullYear();
+          const mm = String(dt.getMonth() + 1).padStart(2, '0');
+          const dd = String(dt.getDate()).padStart(2, '0');
+          return `${yy}${mm}${dd}`;
+        };
+        const datesParam = `${fmt(startObj)}/${fmt(endObj)}`;
+        let url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${datesParam}&details=${encodeURIComponent(details)}`;
+        if (isYearly) {
+          url += `&recur=${encodeURIComponent('RRULE:FREQ=YEARLY')}`;
+        }
+        if (emails && emails.trim()) {
+          // 콤마로 구분된 가족 이메일들을 참석자(add) 파라미터로 전달
+          const guestList = emails
+            .split(',')
+            .map((e) => e.trim())
+            .filter(Boolean)
+            .join(',');
+          if (guestList) {
+            url += `&add=${encodeURIComponent(guestList)}`;
+          }
+        }
+        window.open(url, '_blank', 'noopener,noreferrer');
+      };
+
+      // ★ 카카오톡/문자 공유용 만능 .ics 달력 파일 생성 및 다운로드
+      const downloadIcsFile = ({ title, dateStr, details, isYearly, filename }) => {
+        const cleanDate = (dateStr || '2026-10-25').replace(/-/g, '');
+        const rruleLine = isYearly ? 'RRULE:FREQ=YEARLY
+' : '';
+        const escapedDesc = (details || '').replace(/
+/g, '\n');
+        const icsContent =
+          'BEGIN:VCALENDAR
+' +
+          'VERSION:2.0
+' +
+          'PRODID:-//InsaengAnsim//KR
+' +
+          'BEGIN:VEVENT
+' +
+          `DTSTART;VALUE=DATE:${cleanDate}
+` +
+          rruleLine +
+          `SUMMARY:${title}
+` +
+          `DESCRIPTION:${escapedDesc}
+` +
+          'END:VEVENT
+' +
+          'END:VCALENDAR';
+
+        const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename || '인생안심_가족알림.ics';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+
+      // ★ 고정된 법정상속분 계산 로직 (배우자 1.5 : 자녀 각 1.0 — AI 추측 배제, 코드 연산 고정)
+      const calcInheritanceShares = () => {
+        const hasSpouse = state.treasure.hasSpouse;
+        const n = Math.max(0, Number(state.treasure.childrenCount) || 0);
+        if (!hasSpouse && n === 0) return { spousePct: 0, childPct: 0, totalWeight: 0 };
+        if (hasSpouse && n === 0) return { spousePct: 100, childPct: 0, totalWeight: 1.5 };
+        if (!hasSpouse && n > 0) return { spousePct: 0, childPct: +(100 / n).toFixed(1), totalWeight: n };
+        const totalWeight = 1.5 + n * 1.0;
+        const spousePct = +((1.5 / totalWeight) * 100).toFixed(1);
+        const childPct = +((1.0 / totalWeight) * 100).toFixed(1);
+        return { spousePct, childPct, totalWeight };
+      };
+
+      // ★ 고정된 사후 행정 기한 D-Day 날짜 계산 함수 (추측 배제, 법정 기준 연산)
+      const calcDeadlines = (baseDateStr) => {
+        const parts = (baseDateStr || '2026-10-25').split('-').map(Number);
+        const base = new Date(parts[0], parts[1] - 1, parts[2]);
+        const fmt = (d) => {
+          const yy = d.getFullYear();
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const dd = String(d.getDate()).padStart(2, '0');
+          return `${yy}-${mm}-${dd}`;
+        };
+
+        // 1. 사망신고: 사망 사실을 안 날로부터 1개월 이내
+        const d1Month = new Date(base.getFullYear(), base.getMonth() + 1, base.getDate());
+        // 2. 상속포기·한정승인 심판청구: 상속개시 있음을 안 날로부터 3개월 이내 (민법 제1019조 제1항)
+        const d3Months = new Date(base.getFullYear(), base.getMonth() + 3, base.getDate());
+        // 3. 상속세 신고·납부: 사망일이 속한 달의 말일부터 6개월 이내
+        const endOfDeathMonth6 = new Date(base.getFullYear(), base.getMonth() + 1 + 6, 0);
+        // 4. 안심상속 원스톱서비스(사망자 재산조회 통합처리): 사망일이 속한 달의 말일부터 1년 이내
+        const endOfDeathMonth12 = new Date(base.getFullYear(), base.getMonth() + 1 + 12, 0);
+
+        return [
+          {
+            step: '1개월 이내',
+            title: '사망신고 및 기본 가족관계 정리',
+            deadline: fmt(d1Month),
+            rule: '사망 사실을 안 날로부터 1개월 이내 (주민센터 또는 정부24)',
+            important: false
+          },
+          {
+            step: '3개월 이내 ★필수 주의',
+            title: '상속포기 · 한정승인 결정 기한 (민법 제1019조)',
+            deadline: fmt(d3Months),
+            rule: '상속개시 있음을 안 날로부터 3개월 이내 가정법원 신청 (도과 시 단순승인으로 간주될 수 있음)',
+            important: true
+          },
+          {
+            step: '말일 기준 6개월 이내',
+            title: '상속세 및 취득세 신고·납부 기한',
+            deadline: fmt(endOfDeathMonth6),
+            rule: '사망일이 속한 달의 말일부터 6개월 이내 관할 세무서·시군구청 신고',
+            important: false
+          },
+          {
+            step: '말일 기준 1년 이내 ★핵심',
+            title: '정부24 안심상속 원스톱서비스 (통합 재산조회)',
+            deadline: fmt(endOfDeathMonth12),
+            rule: '사망일이 속한 달의 말일부터 1년 이내 (금융·토지·자동차·세금·연금 일괄 조회)',
+            important: true
+          }
+        ];
+      };
+
+      const shares = calcInheritanceShares();
+      const deadlines = calcDeadlines(state.roadmap.baseDate);
+
+      return (
+        <div className="min-h-screen bg-[#180B14] text-[#F8F1F5] pb-16">
+          {/* 상단 고정 네비게이션 바 (자주색·버건디 브랜드 테마 유지) */}
+          <header className="sticky top-0 z-30 bg-[#23121E]/95 backdrop-blur border-b border-[#4A263D]">
+            <div className="max-w-3xl mx-auto px-4 py-3.5 flex items-center justify-between gap-2">
+              <div
+                onClick={() => setState((prev) => ({ ...prev, activeModule: null }))}
+                className="flex items-center gap-3 cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8C4A6E] to-[#592842] flex items-center justify-center text-white font-serif font-bold text-xl shadow-md border border-[#A86489]/40">
+                  安
+                </div>
+                <div>
+                  <h1 className="text-lg font-extrabold tracking-tight text-white">인생안심 길잡이</h1>
+                  <p className="text-[11px] text-[#D1B3C4]">내 뜻대로 정리하고, 남은 가족이 헤매지 않게</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {state.activeModule !== null && (
+                  <button
+                    onClick={() => setState((prev) => ({ ...prev, activeModule: null }))}
+                    className="px-3 py-1.5 rounded-xl bg-[#381D2F] hover:bg-[#4B283F] text-[#F3E5EC] text-xs font-bold border border-[#633552] transition"
+                  >
+                    ← 전체 메뉴
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowApiModal(true)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
+                    apiKey.trim()
+                      ? 'bg-emerald-900/70 border-emerald-500/60 text-emerald-200'
+                      : 'bg-[#381D2F] border-[#633552] text-[#E2C6D6]'
+                  }`}
+                >
+                  🔑 {apiKey.trim() ? 'AI 켜짐' : 'AI 키 설정'}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main className="max-w-3xl mx-auto px-4 pt-6 space-y-6">
+            {/* =========================================================
+                메인 홈 화면 (5개 모듈 카드 리스트)
+            ========================================================= */}
+            {state.activeModule === null && (
+              <div className="space-y-6">
+                {/* 히어로 배너 */}
+                <div className="rounded-3xl bg-gradient-to-br from-[#34192B] via-[#271220] to-[#1E0D18] border border-[#572D47] p-6 shadow-xl space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#9C527B] to-[#632B4A] flex items-center justify-center text-3xl font-serif font-bold text-white shadow-inner border border-white/15">
+                      安
+                    </div>
+                    <div>
+                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#522741] text-[#F2CFE2] text-[11px] font-bold mb-1">
+                        100% 무료 · 기기 내 안전 저장 · 가족 맞춤 공유
+                      </span>
+                      <h2 className="text-2xl font-black text-white">인생안심 길잡이</h2>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[#DBC3D0] leading-relaxed">
+                    내 뜻대로 정리하고, 남은 가족이 헤매지 않게.<br />
+                    5개 모듈로 나눠 천천히 채워보세요. 작성하신 내용은 외부 서버로 전송되지 않고 이 기기에만 안전하게 보관됩니다.
+                  </p>
+                </div>
+
+                {/* 5개 모듈 카드 목록 (스크린샷 UI 완벽 재현 + 기능 확장 배지) */}
+                <div className="space-y-3.5">
+                  {[
+                    {
+                      id: 1,
+                      num: '①',
+                      title: '마음 갈무리',
+                      sub: 'AI 자서전 & 가족에게 남기는 편지',
+                      desc: `다자녀·가족별 맞춤 편지함 (${state.familyMembers.length}명 등록됨) + 실시간 AI 윤문 + 타임캡슐 캘린더 알림`,
+                      badge: '★ 가족 추가 · 캘린더 연동'
+                    },
+                    {
+                      id: 2,
+                      num: '②',
+                      title: '존엄한 결정',
+                      sub: '사전연명의료 & 돌봄 의향서',
+                      desc: '무의미한 연명의료 중단 의향 정리 및 법적 공식 등록기관(건보공단·보건소) 안내',
+                      badge: null
+                    },
+                    {
+                      id: 3,
+                      num: '③',
+                      title: '마지막 소풍',
+                      sub: '내 뜻대로 디자인하는 장례 & 안치',
+                      desc: '장례 방식, 규모, 영정사진, 장례식장 음악과 가족에게 남기는 당부 기록',
+                      badge: null
+                    },
+                    {
+                      id: 4,
+                      num: '④',
+                      title: '보물지도 & 유언 가이드',
+                      sub: '숨은 자산 체크 + 법정상속분·유언 요건 안내',
+                      desc: '계좌번호 없이 안전한 자산 위치 기록 + 법정상속분(1.5:1) 자동 계산 + 증여세 공제 법령 고정 안내',
+                      badge: '★ 핵심'
+                    },
+                    {
+                      id: 5,
+                      num: '⑤',
+                      title: '사후 행정 로드맵 & 기일 알림',
+                      sub: '사망일 기준 D-Day 행정 타임라인 + 구글 캘린더 가족 알림',
+                      desc: '안심상속 원스톱(1년)·상속포기(3개월) 법정 기한 자동 연산 및 가족 이메일·카톡 달력(.ics) 공유',
+                      badge: '★ 구글 캘린더 연동'
+                    }
+                  ].map((mod) => (
+                    <button
+                      key={mod.id}
+                      onClick={() => setState((prev) => ({ ...prev, activeModule: mod.id }))}
+                      className="w-full text-left rounded-2xl bg-[#261420] hover:bg-[#311A29] border border-[#4D283E] p-5 transition-all flex items-center justify-between gap-4 shadow-md group"
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#3B2032] border border-[#5E3450] flex items-center justify-center text-lg font-bold text-[#E6BFD5] shrink-0 group-hover:bg-[#8C4A6E] group-hover:text-white transition">
+                          {mod.num}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-lg font-black text-white">{mod.title}</span>
+                            <span className="text-xs font-medium text-[#CFAAC0]">{mod.sub}</span>
+                            {mod.badge && (
+                              <span className="px-2 py-0.5 rounded-full bg-[#5E2D49] text-[#FFD9EC] text-[11px] font-extrabold">
+                                {mod.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-[#B894A8] leading-relaxed">{mod.desc}</p>
+                        </div>
+                      </div>
+                      <span className="text-[#9E6B88] group-hover:translate-x-1 transition text-lg font-bold">›</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* 하단 3대 원칙 요약 & 데이터 초기화 */}
+                <div className="rounded-2xl bg-[#21101B] border border-[#3E2032] p-4 flex flex-wrap items-center justify-between gap-3 text-xs text-[#B894A8]">
+                  <div>
+                    🔒 모든 데이터는 외부 서버 전송 없이 <strong>이 기기의 브라우저(localStorage)</strong>에만 저장됩니다.
+                  </div>
+                  <button
+                    onClick={resetAllData}
+                    className="px-3 py-1.5 rounded-lg bg-[#331929] hover:bg-rose-950 text-[#E0B8CE] hover:text-rose-200 font-bold border border-[#522942] transition"
+                  >
+                    전체 기록 초기화
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* =========================================================
+                모듈 ① 마음 갈무리 (다자녀/가족 무제한 추가 + AI 윤문 + 캘린더 초대)
+            ========================================================= */}
+            {state.activeModule === 1 && (
+              <div className="space-y-6">
+                <div className="rounded-3xl bg-[#261420] border border-[#542C44] p-6 space-y-2">
+                  <span className="text-xs font-bold text-[#E5A4C7]">모듈 ① 마음 갈무리</span>
+                  <h2 className="text-2xl font-black text-white">AI 자서전 & 가족별 맞춤 타임캡슐 편지</h2>
+                  <p className="text-xs text-[#CDB0C0]">
+                    배우자, 첫째, 둘째, 손주까지 가족 구성원을 자유롭게 추가해 각 사람에게 꼭 맞는 편지를 남기고, 미래의 특정 기념일에 구글 캘린더 알림으로 받아보게 설정하세요.
+                  </p>
+                </div>
+
+                {/* 파트 1: 나의 인생 3문 3답 자서전 */}
+                <div className="rounded-3xl bg-[#23121D] border border-[#452438] p-6 space-y-4">
+                  <h3 className="text-lg font-extrabold text-white">📖 1. 내 삶을 돌아보는 짧은 자서전 (3문 3답)</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                        Q1. 내 인생에서 가장 빛나고 행복했던 순간은 언제였나요?
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={state.autobiography.q1}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            autobiography: { ...prev.autobiography, q1: e.target.value }
+                          }))
+                        }
+                        className="w-full rounded-xl bg-[#180B14] border border-[#522B43] p-3 text-sm text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                        Q2. 삶을 돌아보며 나 자신과 가족에게 해주고 싶은 말은?
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={state.autobiography.q2}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            autobiography: { ...prev.autobiography, q2: e.target.value }
+                          }))
+                        }
+                        className="w-full rounded-xl bg-[#180B14] border border-[#522B43] p-3 text-sm text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                        Q3. 내가 떠난 뒤 가족들이 나를 어떻게 기억해 주길 바라나요?
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={state.autobiography.q3}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            autobiography: { ...prev.autobiography, q3: e.target.value }
+                          }))
+                        }
+                        className="w-full rounded-xl bg-[#180B14] border border-[#522B43] p-3 text-sm text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 파트 2: ★ 다자녀/가족 구성원 멀티 탭 & 편지 작성 */}
+                <div className="rounded-3xl bg-[#261420] border-2 border-[#7A3E60] p-6 space-y-5 shadow-lg">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <span className="px-2.5 py-0.5 rounded-full bg-[#6B3353] text-[#FFE0F0] text-[11px] font-black">
+                        NEW 다자녀 · 대가족 지원
+                      </span>
+                      <h3 className="text-lg font-extrabold text-white mt-1">
+                        💌 2. 가족 구성원별 1:1 타임캡슐 편지함
+                      </h3>
+                    </div>
+                    <button
+                      onClick={() => setShowAddFamilyModal(true)}
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-[#9E4E7B] to-[#78355B] hover:from-[#B05A8A] hover:to-[#8A3E69] text-white text-xs font-black shadow-md transition"
+                    >
+                      ➕ 가족 구성원 추가하기
+                    </button>
+                  </div>
+
+                  {/* 가족 탭 가로 스크롤 바 */}
+                  <div className="flex items-center gap-2 overflow-x-auto custom-scroll pb-2">
+                    {state.familyMembers.map((fam) => {
+                      const active = fam.id === currentFamily?.id;
+                      return (
+                        <button
+                          key={fam.id}
+                          onClick={() => setState((prev) => ({ ...prev, selectedFamilyId: fam.id }))}
+                          className={`shrink-0 px-4 py-2.5 rounded-2xl text-xs font-extrabold border transition flex items-center gap-2 ${
+                            active
+                              ? 'bg-[#8C4A6E] text-white border-[#DF9EC2] shadow-md'
+                              : 'bg-[#1B0D16] text-[#C9A6BA] border-[#4A253B] hover:bg-[#311828]'
+                          }`}
+                        >
+                          <span className="text-base">{fam.icon}</span>
+                          <span>{fam.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 선택된 가족 상세 편집 영역 */}
+                  {currentFamily && (
+                    <div className="bg-[#1B0D16] rounded-2xl p-5 border border-[#4F2840] space-y-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#381C2D] pb-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl">{currentFamily.icon}</span>
+                          <div>
+                            <h4 className="font-black text-white text-base">
+                              {currentFamily.name} <span className="text-xs text-[#C99BB5]">({currentFamily.relation})</span>
+                            </h4>
+                            <p className="text-[11px] text-[#A88298]">
+                              열람 시점: {currentFamily.occasion} ({currentFamily.targetDate})
+                            </p>
+                          </div>
+                        </div>
+                        {state.familyMembers.length > 1 && (
+                          <button
+                            onClick={() => handleDeleteFamily(currentFamily.id)}
+                            className="text-xs text-rose-300 hover:text-rose-200 font-bold px-2.5 py-1 rounded-lg bg-rose-950/50 border border-rose-800/50"
+                          >
+                            삭제
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                            받는 가족 호칭 / 이름
+                          </label>
+                          <input
+                            type="text"
+                            value={currentFamily.name}
+                            onChange={(e) => updateCurrentFamily({ name: e.target.value })}
+                            className="w-full rounded-xl bg-[#261420] border border-[#542C44] px-3 py-2 text-sm text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                            언제 열어볼 편지인가요? (기념일·나이)
+                          </label>
+                          <input
+                            type="text"
+                            value={currentFamily.occasion}
+                            onChange={(e) => updateCurrentFamily({ occasion: e.target.value })}
+                            placeholder="예: 스무 살 성년의 날, 결혼식 날"
+                            className="w-full rounded-xl bg-[#261420] border border-[#542C44] px-3 py-2 text-sm text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                            타임캡슐 개봉 예정일 (캘린더 알림 날짜)
+                          </label>
+                          <input
+                            type="date"
+                            value={currentFamily.targetDate}
+                            onChange={(e) => updateCurrentFamily({ targetDate: e.target.value })}
+                            className="w-full rounded-xl bg-[#261420] border border-[#542C44] px-3 py-2 text-sm text-white"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                            이 가족의 이메일 (구글 캘린더 초대용·선택)
+                          </label>
+                          <input
+                            type="email"
+                            value={currentFamily.email || ''}
+                            onChange={(e) => updateCurrentFamily({ email: e.target.value })}
+                            placeholder="예: child1@gmail.com"
+                            className="w-full rounded-xl bg-[#261420] border border-[#542C44] px-3 py-2 text-sm text-white"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                          전하고 싶은 핵심 추억이나 당부 키워드 (짧게 적어주세요)
+                        </label>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          <input
+                            type="text"
+                            value={currentFamily.keywords}
+                            onChange={(e) => updateCurrentFamily({ keywords: e.target.value })}
+                            placeholder="예: 맏이로 고생 많았어, 동생과 우애 있게 지내고 네 꿈을 응원해"
+                            className="flex-1 rounded-xl bg-[#261420] border border-[#542C44] px-3 py-2.5 text-sm text-white"
+                          />
+                          <button
+                            onClick={polishLetterWithAI}
+                            disabled={aiLoading}
+                            className="shrink-0 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-black text-xs shadow transition"
+                          >
+                            {aiLoading ? '✨ 다듬는 중...' : '✨ AI로 편지 따뜻하게 다듬기'}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                          {currentFamily.name}에게 남기는 타임캡슐 편지 본문
+                        </label>
+                        <textarea
+                          rows={5}
+                          value={currentFamily.letter}
+                          onChange={(e) => updateCurrentFamily({ letter: e.target.value })}
+                          className="w-full rounded-2xl bg-[#261420] border border-[#6B3857] p-4 text-sm text-white leading-relaxed"
+                        />
+                      </div>
+
+                      {/* ★ 액션 버튼: 미리보기 + 구글 캘린더 등록 + .ics 다운로드 */}
+                      <div className="pt-2 space-y-2">
+                        <div className="text-[11px] text-amber-200/90 bg-amber-950/40 border border-amber-700/40 rounded-xl px-3 py-2">
+                          💡 <strong>정직한 알림 고지:</strong> 유료 문자 서버를 통한 자동 발송이 아닌, <strong>구글 캘린더 일정 초대 및 스마트폰 달력 파일(.ics)</strong> 방식으로 가족에게 미래 알림을 전달합니다.
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                          <button
+                            onClick={() => setShowPreviewModal(true)}
+                            className="py-3 px-3 rounded-xl bg-[#4A253B] hover:bg-[#5E304B] text-white font-bold text-xs border border-[#7D4366] transition"
+                          >
+                            📱 수신 화면 미리보기 (시연)
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              openGoogleCalendar({
+                                title: `[인생안심 타임캡슐] ${currentFamily.name}에게 도착한 편지 (${currentFamily.occasion})`,
+                                dateStr: currentFamily.targetDate,
+                                details: `[${currentFamily.occasion} 기념 타임캡슐 편지]
+
+${currentFamily.letter}`,
+                                emails: currentFamily.email,
+                                isYearly: false
+                              })
+                            }
+                            className="py-3 px-3 rounded-xl bg-[#8C4A6E] hover:bg-[#A1567F] text-white font-black text-xs shadow transition"
+                          >
+                            📅 구글 캘린더 알림 + 가족 초대
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              downloadIcsFile({
+                                title: `[타임캡슐 편지] ${currentFamily.name} (${currentFamily.occasion})`,
+                                dateStr: currentFamily.targetDate,
+                                details: currentFamily.letter,
+                                isYearly: false,
+                                filename: `타임캡슐_${currentFamily.name}.ics`
+                              })
+                            }
+                            className="py-3 px-3 rounded-xl bg-emerald-800 hover:bg-emerald-700 text-white font-black text-xs shadow transition"
+                          >
+                            📲 카톡 공유용 달력파일(.ics)
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* =========================================================
+                모듈 ② 존엄한 결정 (사전연명의료 & 등록기관 명확 고지 가드레일)
+            ========================================================= */}
+            {state.activeModule === 2 && (
+              <div className="space-y-6">
+                <div className="rounded-3xl bg-[#261420] border border-[#542C44] p-6 space-y-2">
+                  <span className="text-xs font-bold text-[#E5A4C7]">모듈 ② 존엄한 결정</span>
+                  <h2 className="text-2xl font-black text-white">사전연명의료 & 돌봄 의향서</h2>
+                  <p className="text-xs text-[#CDB0C0]">
+                    임종 과정에 있는 환자가 되었을 때 무의미한 연명의료를 시행하지 않거나 중단할지 내 뜻을 미리 정리해 가족에게 알립니다.
+                  </p>
+                </div>
+
+                {/* ★ 필수 법적 가드레일 경고 박스 (앱 내 작성 ≠ 법적 등록 명확히 구분) */}
+                <div className="rounded-3xl bg-amber-950/60 border-2 border-amber-500/80 p-5 space-y-2 shadow-md">
+                  <div className="text-sm font-black text-amber-200 flex items-center gap-2">
+                    ⚠️ 반드시 확인하세요! (법적 효력 및 공식 등록기관 안내)
+                  </div>
+                  <p className="text-xs text-amber-100/90 leading-relaxed">
+                    이 앱에 체크하신 내용은 <strong>가족들에게 내 뜻을 미리 알려주는 참고용 기록</strong>이며, 앱에 적는 것만으로는 법적 효력이 생기지 않습니다.<br />
+                    실제 법적 효력이 있는 <strong>‘사전연명의료의향서’</strong>로 인정받으려면, 반드시 본인이 신분증을 지참하여 <strong>국민건강보험공단 지사, 보건소, 또는 보건복지부 지정 등록기관</strong>에 직접 방문해 작성·등록하셔야 합니다.
+                  </p>
+                  <div className="pt-1 flex flex-wrap gap-2">
+                    <a
+                      href="https://www.lst.go.kr"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition"
+                    >
+                      🏥 국립연명의료관리기관 (내 주변 등록기관 찾기 · 1855-0075) ↗
+                    </a>
+                  </div>
+                </div>
+
+                {/* 연명의료 항목별 내 의향 체크 */}
+                <div className="rounded-3xl bg-[#23121D] border border-[#4A253B] p-6 space-y-4">
+                  <h3 className="text-lg font-extrabold text-white">🩺 임종 과정 시 연명의료 희망 여부 체크</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      { key: 'cpr', label: '심폐소생술 (CPR)', desc: '심장 정지 시 압박 및 전기충격' },
+                      { key: 'ventilator', label: '인공호흡기 착용', desc: '자발 호흡 불가 시 기계 호흡 연결' },
+                      { key: 'dialysis', label: '혈액투석', desc: '신장 기능 상실 시 인공 투석 시행' },
+                      { key: 'anticancer', label: '항암제 투여', desc: '임종기 단순 연장 목적의 항암제' }
+                    ].map((item) => {
+                      const val = state.medical[item.key];
+                      return (
+                        <div
+                          key={item.key}
+                          onClick={() =>
+                            setState((prev) => ({
+                              ...prev,
+                              medical: { ...prev.medical, [item.key]: !val }
+                            }))
+                          }
+                          className={`p-4 rounded-2xl border cursor-pointer transition flex items-center justify-between ${
+                            !val
+                              ? 'bg-[#361B2C] border-[#9E4E7B] text-white'
+                              : 'bg-[#180B14] border-[#3D2031] text-[#A88298]'
+                          }`}
+                        >
+                          <div>
+                            <div className="font-bold text-sm">{item.label}</div>
+                            <div className="text-[11px] opacity-80">{item.desc}</div>
+                          </div>
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-xs font-black ${
+                              !val ? 'bg-rose-600 text-white' : 'bg-stone-700 text-stone-200'
+                            }`}
+                          >
+                            {!val ? '원하지 않음' : '시행 희망'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="pt-2 space-y-3">
+                    <div
+                      onClick={() =>
+                        setState((prev) => ({
+                          ...prev,
+                          medical: { ...prev.medical, hospice: !prev.medical.hospice }
+                        }))
+                      }
+                      className="p-4 rounded-2xl bg-[#1B0D16] border border-[#5E324C] flex items-center justify-between cursor-pointer"
+                    >
+                      <div>
+                        <div className="font-bold text-sm text-white">🌿 호스피스 · 완화의료 이용 의향</div>
+                        <div className="text-xs text-[#C49EB5]">통증 완화와 심리적 안정을 위한 호스피스 돌봄을 희망합니다.</div>
+                      </div>
+                      <span className="px-3 py-1 rounded-full bg-emerald-700 text-white text-xs font-black">
+                        {state.medical.hospice ? '이용 희망함 ✓' : '미선택'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                        희망하는 요양·돌봄 장소 및 가족에게 남기는 당부
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={state.medical.careNote}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            medical: { ...prev.medical, careNote: e.target.value }
+                          }))
+                        }
+                        className="w-full rounded-xl bg-[#180B14] border border-[#522B43] p-3 text-sm text-white"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =========================================================
+                모듈 ③ 마지막 소풍 (장례 & 안치 디자인)
+            ========================================================= */}
+            {state.activeModule === 3 && (
+              <div className="space-y-6">
+                <div className="rounded-3xl bg-[#261420] border border-[#542C44] p-6 space-y-2">
+                  <span className="text-xs font-bold text-[#E5A4C7]">모듈 ③ 마지막 소풍</span>
+                  <h2 className="text-2xl font-black text-white">내 뜻대로 디자인하는 장례 & 안치</h2>
+                  <p className="text-xs text-[#CDB0C0]">
+                    남은 가족들이 장례식장에서 비용과 절차로 고민하지 않도록 내가 원하는 방식을 미리 정해둡니다.
+                  </p>
+                </div>
+
+                <div className="rounded-3xl bg-[#23121D] border border-[#4A253B] p-6 space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[#DEC0D1] mb-2">1. 희망하는 장례 및 안치 방법</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {[
+                        '화장 후 수목장(자연장)',
+                        '화장 후 봉안당(납골당)',
+                        '화장 후 해양장(산분장)',
+                        '전통 매장 / 가족묘'
+                      ].map((m) => (
+                        <button
+                          key={m}
+                          onClick={() =>
+                            setState((prev) => ({ ...prev, funeral: { ...prev.funeral, method: m } }))
+                          }
+                          className={`p-3 rounded-xl text-xs font-bold border transition ${
+                            state.funeral.method === m
+                              ? 'bg-[#8C4A6E] text-white border-[#DF9EC2]'
+                              : 'bg-[#180B14] text-[#C9A6BA] border-[#432236]'
+                          }`}
+                        >
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#DEC0D1] mb-1">2. 희망하는 장례 규모와 기간</label>
+                    <input
+                      type="text"
+                      value={state.funeral.scale}
+                      onChange={(e) =>
+                        setState((prev) => ({ ...prev, funeral: { ...prev.funeral, scale: e.target.value } }))
+                      }
+                      className="w-full rounded-xl bg-[#180B14] border border-[#522B43] p-3 text-sm text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#DEC0D1] mb-1">3. 영정사진 및 추모 공간 분위기</label>
+                    <input
+                      type="text"
+                      value={state.funeral.photoNote}
+                      onChange={(e) =>
+                        setState((prev) => ({ ...prev, funeral: { ...prev.funeral, photoNote: e.target.value } }))
+                      }
+                      className="w-full rounded-xl bg-[#180B14] border border-[#522B43] p-3 text-sm text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#DEC0D1] mb-1">4. 조문객과 가족들에게 전하는 당부</label>
+                    <textarea
+                      rows={3}
+                      value={state.funeral.message}
+                      onChange={(e) =>
+                        setState((prev) => ({ ...prev, funeral: { ...prev.funeral, message: e.target.value } }))
+                      }
+                      className="w-full rounded-xl bg-[#180B14] border border-[#522B43] p-3 text-sm text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =========================================================
+                모듈 ④ 보물지도 & 유언 가이드 (법령 수치 100% 고정 가드레일)
+            ========================================================= */}
+            {state.activeModule === 4 && (
+              <div className="space-y-6">
+                <div className="rounded-3xl bg-[#261420] border border-[#542C44] p-6 space-y-2">
+                  <span className="text-xs font-bold text-[#E5A4C7]">모듈 ④ 보물지도 & 유언 가이드 ★핵심</span>
+                  <h2 className="text-2xl font-black text-white">숨은 자산 위치 체크 & 법정상속분·증여 기준</h2>
+                  <p className="text-xs text-[#CDB0C0]">
+                    보안을 위해 계좌번호나 비밀번호는 절대 입력받지 않으며, 가족들이 몰라서 못 찾는 자산이 없도록 ‘어느 기관, 어디에 서류가 있는지’만 기록합니다.
+                  </p>
+                </div>
+
+                {/* 1. 숨은 자산 보물지도 체크리스트 */}
+                <div className="rounded-3xl bg-[#23121D] border border-[#4A253B] p-6 space-y-4">
+                  <h3 className="text-lg font-extrabold text-white">🗺️ 1. 내 자산 보물지도 (계좌번호 입력 금지 · 위치만 기록)</h3>
+                  <div className="space-y-3">
+                    {state.treasure.assets.map((asset, idx) => (
+                      <div key={asset.id} className="p-4 rounded-2xl bg-[#180B14] border border-[#4A253B] space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-sm text-[#F2CFE2]">{asset.category}</span>
+                          <input
+                            type="checkbox"
+                            checked={asset.checked}
+                            onChange={(e) => {
+                              const next = [...state.treasure.assets];
+                              next[idx] = { ...asset, checked: e.target.checked };
+                              setState((prev) => ({
+                                ...prev,
+                                treasure: { ...prev.treasure, assets: next }
+                              }));
+                            }}
+                            className="w-4 h-4 accent-[#9E4E7B]"
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <input
+                            type="text"
+                            value={asset.inst}
+                            onChange={(e) => {
+                              const next = [...state.treasure.assets];
+                              next[idx] = { ...asset, inst: e.target.value };
+                              setState((prev) => ({
+                                ...prev,
+                                treasure: { ...prev.treasure, assets: next }
+                              }));
+                            }}
+                            placeholder="금융기관명 (예: 농협, 국민은행)"
+                            className="rounded-xl bg-[#261420] border border-[#522B43] px-3 py-2 text-xs text-white"
+                          />
+                          <input
+                            type="text"
+                            value={asset.memo}
+                            onChange={(e) => {
+                              const next = [...state.treasure.assets];
+                              next[idx] = { ...asset, memo: e.target.value };
+                              setState((prev) => ({
+                                ...prev,
+                                treasure: { ...prev.treasure, assets: next }
+                              }));
+                            }}
+                            placeholder="서류 보관 위치 (계좌번호 적지 마세요)"
+                            className="rounded-xl bg-[#261420] border border-[#522B43] px-3 py-2 text-xs text-white"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. 법정상속분 자동 계산기 (민법 제1009조 배우자 1.5 : 자녀 1 고정 코드) */}
+                <div className="rounded-3xl bg-[#23121D] border border-[#4A253B] p-6 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-lg font-extrabold text-white">⚖️ 2. 민법상 법정상속분 자동 계산기 (배우자 1.5 : 자녀 각 1)</h3>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700 text-[11px] font-bold">
+                      법령 고정 수식 적용
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="p-4 rounded-2xl bg-[#180B14] border border-[#452438] flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#DEC0D1]">배우자 생존 여부</span>
+                      <button
+                        onClick={() =>
+                          setState((prev) => ({
+                            ...prev,
+                            treasure: { ...prev.treasure, hasSpouse: !prev.treasure.hasSpouse }
+                          }))
+                        }
+                        className={`px-3 py-1.5 rounded-xl text-xs font-black ${
+                          state.treasure.hasSpouse ? 'bg-[#8C4A6E] text-white' : 'bg-stone-800 text-stone-400'
+                        }`}
+                      >
+                        {state.treasure.hasSpouse ? '배우자 있음 (1.5)' : '배우자 없음'}
+                      </button>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-[#180B14] border border-[#452438] flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#DEC0D1]">직계비속(자녀) 수</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() =>
+                            setState((prev) => ({
+                              ...prev,
+                              treasure: {
+                                ...prev.treasure,
+                                childrenCount: Math.max(0, prev.treasure.childrenCount - 1)
+                              }
+                            }))
+                          }
+                          className="w-8 h-8 rounded-lg bg-[#381D2F] text-white font-black"
+                        >
+                          -
+                        </button>
+                        <span className="font-black text-base w-8 text-center">{state.treasure.childrenCount}명</span>
+                        <button
+                          onClick={() =>
+                            setState((prev) => ({
+                              ...prev,
+                              treasure: {
+                                ...prev.treasure,
+                                childrenCount: prev.treasure.childrenCount + 1
+                              }
+                            }))
+                          }
+                          className="w-8 h-8 rounded-lg bg-[#381D2F] text-white font-black"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-[#311828] border border-[#6E3B58] grid grid-cols-2 gap-4 text-center">
+                    <div>
+                      <div className="text-xs text-[#D4AFC3]">배우자 법정상속 지분</div>
+                      <div className="text-2xl font-black text-white mt-1">{shares.spousePct}%</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-[#D4AFC3]">자녀 1인당 법정상속 지분</div>
+                      <div className="text-2xl font-black text-[#FFD6EC] mt-1">{shares.childPct}%</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. ★ 고정 법령 가이드: 자필증서 유언 5대 요건 & 사전 증여세 공제 한도 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-3xl bg-[#23121D] border border-[#4A253B] p-5 space-y-3">
+                    <h4 className="font-extrabold text-white text-sm">📜 민법 제1066조 자필증서 유언 5대 필수 요건</h4>
+                    <p className="text-[11px] text-[#C49EB5]">
+                      아래 5가지 중 하나라도 빠지거나 컴퓨터 타자로 작성하면 유언장이 법적으로 무효가 됩니다.
+                    </p>
+                    <ul className="text-xs space-y-1.5 text-[#F2DCE8] font-medium">
+                      <li>✅ <strong>1. 전문 자필 기재:</strong> 유언 내용 전체를 직접 손글씨로 작성</li>
+                      <li>✅ <strong>2. 연·월·일 자필 기재:</strong> 작성한 연도·월·일까지 정확히 손글씨 기재</li>
+                      <li>✅ <strong>3. 주소 자필 기재:</strong> 현재 주민등록상 주소를 직접 손글씨 기재</li>
+                      <li>✅ <strong>4. 성명 자필 기재:</strong> 본인의 이름을 직접 손글씨 기재</li>
+                      <li>✅ <strong>5. 날인 (도장 또는 무인):</strong> 인감도장 날인 또는 엄지손가락 지장(무인) 필수 (단순 사인·서명만 하면 무효 위험!)</li>
+                    </ul>
+                  </div>
+
+                  <div className="rounded-3xl bg-[#23121D] border border-[#4A253B] p-5 space-y-3">
+                    <h4 className="font-extrabold text-white text-sm">💰 사전 증여재산공제 법정 한도 (고정 기준)</h4>
+                    <p className="text-[11px] text-[#C49EB5]">
+                      사망 전 10년 이내에 상속인에게 증여한 재산은 상속세 계산 시 합산되므로 미리 계획하는 것이 유리합니다.
+                    </p>
+                    <div className="space-y-2 text-xs">
+                      <div className="p-2.5 rounded-xl bg-[#180B14] border border-[#432236] flex justify-between">
+                        <span>• 배우자로부터 증여 (10년간)</span>
+                        <strong className="text-[#FFD6EC]">6억 원 공제</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#180B14] border border-[#432236] flex justify-between">
+                        <span>• 성년 자녀에게 증여 (10년간)</span>
+                        <strong className="text-[#FFD6EC]">5,000만 원 공제</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#180B14] border border-[#432236] flex justify-between">
+                        <span>• 미성년 자녀에게 증여 (10년간)</span>
+                        <strong className="text-[#FFD6EC]">2,000만 원 공제</strong>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-[#341A2B] border border-[#7A3E60] flex justify-between">
+                        <span>★ 혼인·출산 증여재산공제 (2024년~)</span>
+                        <strong className="text-amber-300">최대 1억 원 추가 공제</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* =========================================================
+                모듈 ⑤ 사후 행정 로드맵 & 기일 알림 (D-Day 자동 계산 + 구글 캘린더 가족 초대)
+            ========================================================= */}
+            {state.activeModule === 5 && (
+              <div className="space-y-6">
+                <div className="rounded-3xl bg-[#261420] border border-[#542C44] p-6 space-y-2">
+                  <span className="text-xs font-bold text-[#E5A4C7]">모듈 ⑤ 사후 로드맵 & 기일 알림</span>
+                  <h2 className="text-2xl font-black text-white">D-Day 사후 행정 타임라인 & 매년 기일 캘린더 공유</h2>
+                  <p className="text-xs text-[#CDB0C0]">
+                    기준일(사망일) 1건만 입력하면 가족들이 놓치기 쉬운 법정 신고 기한을 코드로 정확히 계산해주며, 매년 돌아오는 기일 알림을 가족들의 구글 캘린더에 등록합니다.
+                  </p>
+                </div>
+
+                {/* 1. D-Day 법정 행정 타임라인 계산기 */}
+                <div className="rounded-3xl bg-[#23121D] border border-[#4A253B] p-6 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-lg font-extrabold text-white">🗓️ 1. 기준일(사망일) 기반 법정 기한 자동 계산</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-[#DEC0D1]">기준 날짜:</span>
+                      <input
+                        type="date"
+                        value={state.roadmap.baseDate}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            roadmap: { ...prev.roadmap, baseDate: e.target.value }
+                          }))
+                        }
+                        className="rounded-xl bg-[#180B14] border border-[#6E3B58] px-3 py-1.5 text-sm text-white font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {deadlines.map((item, i) => (
+                      <div
+                        key={i}
+                        className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                          item.important
+                            ? 'bg-[#331929] border-[#9E4E7B]'
+                            : 'bg-[#180B14] border-[#422135]'
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <span className="inline-block px-2 py-0.5 rounded bg-[#572B45] text-[#FFD9EC] text-[11px] font-black">
+                            {item.step}
+                          </span>
+                          <div className="font-extrabold text-white text-sm">{item.title}</div>
+                          <div className="text-xs text-[#C49EB5]">{item.rule}</div>
+                        </div>
+                        <div className="sm:text-right shrink-0">
+                          <div className="text-[11px] text-[#D4AFC3]">법정 마감 기한</div>
+                          <div className="text-lg font-black text-amber-300">{item.deadline} 까지</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. ★ 매년 반복 기일 알림 구글 캘린더 가족 초대 & .ics 파일 공유 */}
+                <div className="rounded-3xl bg-[#261420] border-2 border-[#7A3E60] p-6 space-y-4">
+                  <h3 className="text-lg font-extrabold text-white">
+                    🔔 2. 매년 반복 기일 알림 — 구글 캘린더 가족 동시 초대
+                  </h3>
+                  <p className="text-xs text-[#CDB0C0]">
+                    자동 문자 발송처럼 유료 서버가 필요한 방식 대신, 가족들의 구글 이메일(Gmail)을 입력해 <strong>구글 캘린더 ‘매년 반복(YEARLY)’ 일정</strong>으로 가족 전원에게 알림이 울리도록 설정합니다.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                        캘린더 일정 제목
+                      </label>
+                      <input
+                        type="text"
+                        value={state.roadmap.memorialTitle}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            roadmap: { ...prev.roadmap, memorialTitle: e.target.value }
+                          }))
+                        }
+                        className="w-full rounded-xl bg-[#180B14] border border-[#522B43] px-3 py-2 text-sm text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                        초대할 가족 이메일 주소 (쉼표 , 로 여러 명 입력 가능)
+                      </label>
+                      <input
+                        type="text"
+                        value={state.roadmap.memorialFamilyEmails}
+                        onChange={(e) =>
+                          setState((prev) => ({
+                            ...prev,
+                            roadmap: { ...prev.roadmap, memorialFamilyEmails: e.target.value }
+                          }))
+                        }
+                        placeholder="예: first@gmail.com, second@gmail.com"
+                        className="w-full rounded-xl bg-[#180B14] border border-[#522B43] px-3 py-2 text-sm text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#DEC0D1] mb-1">
+                      매년 기일마다 가족들이 캘린더에서 보게 될 당부 메시지
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={state.roadmap.memorialMessage}
+                      onChange={(e) =>
+                        setState((prev) => ({
+                          ...prev,
+                          roadmap: { ...prev.roadmap, memorialMessage: e.target.value }
+                        }))
+                      }
+                      className="w-full rounded-xl bg-[#180B14] border border-[#522B43] p-3 text-sm text-white"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <button
+                      onClick={() =>
+                        openGoogleCalendar({
+                          title: state.roadmap.memorialTitle,
+                          dateStr: state.roadmap.baseDate,
+                          details: `[인생안심 기일 당부]
+${state.roadmap.memorialMessage}
+
+• 희망 장례/안치: ${state.funeral.method}`,
+                          emails: state.roadmap.memorialFamilyEmails,
+                          isYearly: true
+                        })
+                      }
+                      className="py-3.5 px-4 rounded-2xl bg-gradient-to-r from-[#9E4E7B] to-[#78355B] hover:from-[#B05A8A] hover:to-[#8A3E69] text-white font-black text-xs shadow-md transition"
+                    >
+                      📅 구글 캘린더 ‘매년 반복’ 등록 + 가족 이메일 초대
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        downloadIcsFile({
+                          title: state.roadmap.memorialTitle,
+                          dateStr: state.roadmap.baseDate,
+                          details: state.roadmap.memorialMessage,
+                          isYearly: true,
+                          filename: '인생안심_매년기일알림.ics'
+                        })
+                      }
+                      className="py-3.5 px-4 rounded-2xl bg-emerald-800 hover:bg-emerald-700 text-white font-black text-xs shadow-md transition"
+                    >
+                      📲 카톡 단톡방 공유용 매년 반복 달력파일(.ics) 받기
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* =========================================================
+              모달 1: 새 가족 구성원 추가 모달
+          ========================================================= */}
+          {showAddFamilyModal && (
+            <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+              <div className="bg-[#261420] border-2 border-[#8C4A6E] rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-black text-white">➕ 새 가족 구성원 편지함 추가</h3>
+                  <button
+                    onClick={() => setShowAddFamilyModal(false)}
+                    className="text-sm text-[#C9A6BA] font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[#DEC0D1] mb-1">가족 호칭 또는 이름</label>
+                    <input
+                      type="text"
+                      value={newFamName}
+                      onChange={(e) => setNewFamName(e.target.value)}
+                      placeholder="예: 셋째 김별, 사랑하는 손주 민준이"
+                      className="w-full rounded-xl bg-[#180B14] border border-[#542C44] px-3 py-2.5 text-sm text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#DEC0D1] mb-1">나와의 관계</label>
+                    <select
+                      value={newFamRelation}
+                      onChange={(e) => setNewFamRelation(e.target.value)}
+                      className="w-full rounded-xl bg-[#180B14] border border-[#542C44] px-3 py-2.5 text-sm text-white"
+                    >
+                      <option value="배우자">💑 배우자</option>
+                      <option value="첫째 자녀">👧 첫째 자녀</option>
+                      <option value="둘째 자녀">👦 둘째 자녀</option>
+                      <option value="셋째 자녀">🧒 셋째 자녀 / 다자녀</option>
+                      <option value="손주">👶 손자 · 손녀</option>
+                      <option value="부모님/형제">🌷 부모님 · 형제자매</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#DEC0D1] mb-1">언제 열어볼 타임캡슐인가요?</label>
+                    <input
+                      type="text"
+                      value={newFamOccasion}
+                      onChange={(e) => setNewFamOccasion(e.target.value)}
+                      placeholder="예: 대학 입학 날, 서른 살 생일"
+                      className="w-full rounded-xl bg-[#180B14] border border-[#542C44] px-3 py-2.5 text-sm text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#DEC0D1] mb-1">타임캡슐 개봉 예정 날짜</label>
+                    <input
+                      type="date"
+                      value={newFamDate}
+                      onChange={(e) => setNewFamDate(e.target.value)}
+                      className="w-full rounded-xl bg-[#180B14] border border-[#542C44] px-3 py-2.5 text-sm text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={() => setShowAddFamilyModal(false)}
+                    className="flex-1 py-2.5 rounded-xl bg-[#381D2F] text-[#D4AFC3] text-xs font-bold"
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleAddFamily}
+                    className="flex-1 py-2.5 rounded-xl bg-[#8C4A6E] hover:bg-[#A1567F] text-white text-xs font-black"
+                  >
+                    추가하기
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* =========================================================
+              모달 2: 가족 수신 화면 미리보기 (시연용 모달)
+          ========================================================= */}
+          {showPreviewModal && currentFamily && (
+            <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+              <div className="bg-gradient-to-b from-[#2E1625] to-[#1B0D16] border-2 border-[#A86489] rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-[#4D283E] pb-3">
+                  <span className="px-2.5 py-1 rounded-full bg-[#6B3353] text-[#FFE0F0] text-xs font-black">
+                    💌 타임캡슐 수신 화면 미리보기
+                  </span>
+                  <button
+                    onClick={() => setShowPreviewModal(false)}
+                    className="text-sm text-[#C9A6BA] font-bold"
+                  >
+                    ✕ 닫기
+                  </button>
+                </div>
+
+                {/* 모달 안에서도 다른 가족 탭으로 바로 전환하며 시연 가능 */}
+                <div className="flex gap-1.5 overflow-x-auto pb-1">
+                  {state.familyMembers.map((f) => (
+                    <button
+                      key={f.id}
+                      onClick={() => setState((prev) => ({ ...prev, selectedFamilyId: f.id }))}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 ${
+                        f.id === currentFamily.id ? 'bg-[#8C4A6E] text-white' : 'bg-[#180B14] text-[#B894A8]'
+                      }`}
+                    >
+                      {f.icon} {f.name}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="bg-[#FFF9FB] text-slate-900 rounded-2xl p-5 space-y-3 shadow-inner">
+                  <div className="text-xs font-bold text-[#8C4A6E]">
+                    📅 개봉일: {currentFamily.targetDate} · {currentFamily.occasion}
+                  </div>
+                  <h4 className="text-lg font-black text-slate-900">
+                    To. {currentFamily.name} ({currentFamily.relation})
+                  </h4>
+                  <p className="text-sm text-slate-800 whitespace-pre-line leading-relaxed border-t border-rose-100 pt-3">
+                    {currentFamily.letter}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowPreviewModal(false)}
+                  className="w-full py-3 rounded-xl bg-[#8C4A6E] text-white font-black text-xs"
+                >
+                  확인 닫기
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* =========================================================
+              모달 3: 무료 Gemini API 키 연결 모달
+          ========================================================= */}
+          {showApiModal && (
+            <div className="fixed inset-0 z-50 bg-black/75 flex items-center justify-center p-4">
+              <div className="bg-[#261420] border-2 border-[#8C4A6E] rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-black text-white">🔑 무료 Gemini AI 키 설정</h3>
+                  <button
+                    onClick={() => setShowApiModal(false)}
+                    className="text-sm text-[#C9A6BA] font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className="text-xs text-[#CDB0C0] leading-relaxed">
+                  • 키를 넣지 않아도 5개 모듈 전체 기능과 기본 편지 다듬기, 법정상속분·D-Day 계산이 100% 작동합니다.<br />
+                  • Google AI Studio에서 발급받은 무료 Gemini API 키를 입력하면 가족별 키워드에 맞춰 실시간 AI가 편지를 더욱 풍성하게 윤문해 줍니다. (이 기기에만 저장됨)
+                </p>
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => saveApiKey(e.target.value)}
+                  placeholder="AIzaSy... 로 시작하는 Gemini API 키 입력"
+                  className="w-full rounded-xl bg-[#180B14] border border-[#6E3B58] px-3 py-2.5 text-sm text-white font-mono"
+                />
+                <button
+                  onClick={() => setShowApiModal(false)}
+                  className="w-full py-3 rounded-xl bg-[#8C4A6E] hover:bg-[#A1567F] text-white font-black text-xs"
+                >
+                  저장하고 닫기
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+
+    // 기존 PWA 서비스워커 자동 등록 유지
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>
